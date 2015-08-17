@@ -1,0 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font: 13px Helvetica, Arial;
+}
+
+#game_canvas {
+  background-color: lightblue;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
