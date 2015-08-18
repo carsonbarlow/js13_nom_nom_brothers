@@ -8,8 +8,10 @@ body {
 }
 
 #game_canvas {
-  background-color: lightblue;
+  background-color: white;
   position: absolute;
   top: 0px;
   left: 0px;
+  background-image:url(hexagon.svg);
+  background-repeat:repeat;
 }
