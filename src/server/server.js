@@ -73,6 +73,10 @@ io.sockets.on('connection', function(socket){
   socket.on('game_update', function(data){
     socket.opponent.emit('game_update', data);
   });
+  socket.on('game_update_both', function(data){
+    socket.opponent.emit('game_update', data);
+    socket.emit('game_update', data);
+  });
 });
 
 

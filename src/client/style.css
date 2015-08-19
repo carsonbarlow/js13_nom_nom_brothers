@@ -12,4 +12,6 @@ body {
   position: absolute;
   top: 150px;
   left: 150px;
+  background-image:url(hexagon.svg);
+  background-repeat:repeat;
 }
