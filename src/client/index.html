@@ -3,10 +3,19 @@
   <head>
     <title>js13k</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript">
+    Game = {
+      config: {
+        canvas_id: 'game_canvas',
+        fps_counter_id: 'fps_counter',
+        fps: 60
+      }
+    }
+  </script>
   </head>
   <body>
 
-  <canvas id="game_canvas" width="720" height="600"></canvas>
+  <canvas id="game_canvas" width="720" height="640"></canvas>
 
 
      <script src="/socket.io/socket.io.js"></script>

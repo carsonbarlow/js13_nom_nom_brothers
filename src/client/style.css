@@ -10,6 +10,6 @@ body {
 #game_canvas {
   background-color: lightblue;
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 150px;
+  left: 150px;
 }
