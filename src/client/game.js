@@ -6,6 +6,7 @@ var utils,
   input,
   player,
   opponent,
+  reverse_meter = 0,
   rolling_niblit_id = 1,
   niblits_eaten = [],
   host_interval,
@@ -14,7 +15,8 @@ var utils,
   SCREEN_HEIGHT = 640
   ARENA_WIDTH = 1200,
   ARENA_HEIGHT = 1200,
-  MAX_NIBLITS = 200;
+  MAX_NIBLITS = 200,
+  REVERSE_MAX = 100;
 
 window.onload = function(){
   utils = new Utils();
@@ -29,11 +31,49 @@ window.onload = function(){
 
 var Player = function(){
   this.score = 0;
+  this.old_score = 0;
   this.upgrade_points = 0;
-  this.reverse_meter = 0;
   this.avatar = new Avatar;
 };
 
+Player.prototype.chomp = function(niblit){
+  this.score += niblit.points;
+  this.upgrade_points += niblit.points;
+};
+
+Player.prototype.try_upgrade = function(){
+  if (this.avatar.max_level || this.upgrade_points < this.avatar.level_up[this.avatar.level]){return;}
+  this.upgrade_points -= this.avatar.level_up[this.avatar.level];
+  this.avatar.do_upgrade();
+  sc.socket.emit('game_update',{upgrade:true});
+};
+
+Player.prototype.try_reverse = function(){
+  if (reverse_meter < REVERSE_MAX){return;}
+  reverse_meter = 0;
+  sc.socket.emit('game_update_both',{reverse: true});
+};
+
+function reverse_avatars(){
+  Game.paused = true;
+  setTimeout(function(){
+    var a = player.avatar;
+    player.avatar = opponent.avatar;
+    opponent.avatar = a;
+  },500);
+  setTimeout(function(){
+    Game.paused = false;
+  },1000);
+}
+
+function add_to_reverse_meter(){
+  if (Game.paused){return;}
+  reverse_meter++;
+  if ((player.score - player.old_score) < (opponent.score - opponent.old_score)){reverse_meter++}
+  player.old_score = player.score;
+  opponent.old_score = opponent.score;
+  if (reverse_meter > REVERSE_MAX){reverse_meter = REVERSE_MAX}
+}
 
 var Avatar = function(){
   this.position = {x:0,y:0};
@@ -41,6 +81,8 @@ var Avatar = function(){
   this.color = 'red';
   this.speed = 150;
   this.level = 1;
+  this.rank = 1;
+  this.max_level = false;
   this.level_up = [0,20,30,40,50,60,70,80,90,100];
 }
 
@@ -50,14 +92,23 @@ Avatar.prototype.move = function(delta){
   player.avatar.position.y += move_array[1]*player.avatar.speed*delta;
   //collision detection
   for (var i = 0; i < nm.niblits.length; i++){
-    if (utils.proximity(player.avatar.position, nm.niblits[i]) < player.avatar.radius + nm.niblits[i].size){
-      var n = nm.niblits.splice(i,1);
+    if (nm.niblits[i].points <= player.avatar.rank && utils.proximity(player.avatar.position, nm.niblits[i]) < player.avatar.radius + nm.niblits[i].size){
+      var n = nm.niblits.splice(i,1)[0];
       i--;
-      niblits_eaten.push(n[0].n_id);
+      niblits_eaten.push(n.n_id);
+      player.chomp(n);
     }
   }
 }
-
+Avatar.prototype.do_upgrade = function(){
+  this.level++;
+  if (this.level%2 == 0){
+    this.speed += 50;
+  }else{
+    this.rank++;
+    this.radius += 5;
+  }
+}
 var Niblit = function(config){
   this.x = config.x;
   this.y = config.y;
@@ -76,17 +127,17 @@ var NiblitManager = function(){
 
 NiblitManager.prototype.ready_niblit_batch = function(){
   var min, max, rank, x, y;
-  min = this.avatars[0].level;
+  min = this.avatars[0].rank;
   max = min;
   if (this.avatars[1].level > max){
-    max = this.avatars[1].level;
+    max = this.avatars[1].rank;
   }else{
-    min = this.avatars[1].level;
+    min = this.avatars[1].rank;
   }
   niblit_batch = [];
   for (var i = 0; i < 20; i++){
     if (this.niblits.length + i >= MAX_NIBLITS){break;}
-    rank = Math.round(Math.random()*(max-min))+min;
+    rank = Math.ceil(Math.random()*max);
     x = parseInt(Math.random()*ARENA_WIDTH);
     y = parseInt(Math.random()*ARENA_HEIGHT);
     niblit_batch.push({rank: rank, x: x, y: y});
@@ -95,7 +146,7 @@ NiblitManager.prototype.ready_niblit_batch = function(){
 };
 
 var NiblitFactory = function(niblit_manager){
-  var niblit_rank_to_size = [0,4,10,16,24,32];
+  var niblit_rank_to_size = [0,4,7,10,14,18];
   this.make_niblit = function(){
     if (!niblit_manager.pending_niblits.length){return;}
     var config = niblit_manager.pending_niblits.shift();
@@ -169,12 +220,9 @@ Graphics.prototype.draw = function(){
     ctx.stroke();
   }
 
-
-
-
   //draw PlayerB
   ctx.beginPath();
-  ctx.arc(opponent.avatar.position.x - this.camera.x, opponent.avatar.position.y - this.camera.y, 25, 0, 2 * Math.PI, false);
+  ctx.arc(opponent.avatar.position.x - this.camera.x, opponent.avatar.position.y - this.camera.y, opponent.avatar.radius, 0, 2 * Math.PI, false);
   ctx.fillStyle = opponent.avatar.color;
   ctx.fill();
   ctx.lineWidth = 3;
@@ -183,26 +231,36 @@ Graphics.prototype.draw = function(){
 
   //draw playerA
   ctx.beginPath();
-  ctx.arc(player.avatar.position.x - this.camera.x, player.avatar.position.y - this.camera.y, 25, 0, 2 * Math.PI, false);
+  ctx.arc(player.avatar.position.x - this.camera.x, player.avatar.position.y - this.camera.y, player.avatar.radius, 0, 2 * Math.PI, false);
   ctx.fillStyle = player.avatar.color;
   ctx.fill();
   ctx.lineWidth = 3;
   ctx.strokeStyle = '#003300';
   ctx.stroke();
 
+
+  //HUD
+  //scores
+  ctx.font = "20px sans-serif";
+  ctx.fillStyle = '#333';
+
+  ctx.fillText('Score: '+player.score+'(lv'+player.avatar.level+')',50,25);
+  ctx.fillText('Opponent: '+opponent.score+'(lv'+opponent.avatar.level+')',500,25);
+
+  ctx.fillText('Upgrade: '+player.upgrade_points+'/'+player.avatar.level_up[player.avatar.level], 50, 50);
+  ctx.fillText('Reverse: '+reverse_meter+'/'+REVERSE_MAX, 50, 75);
   ctx.restore();
 };
 
 var Input = function(){
   this.mouse = {x:0,y:0};
-  this.button_u = false;
-  this.button_r = false;
-  var id_to_key = {'U+0055':'u', 'U+0052':'r'};
 };
 
 Input.prototype.init = function(){
   var canvas = document.getElementById('game_canvas');
   var mouse = this.mouse;
+  var id_to_key = {'U+0055':'u', 'U+0052':'r'};
+  var _this = this;
   canvas.addEventListener('mousemove',function(event){
     mouse.x = event.x - canvas.offsetLeft;
     mouse.y = event.y - canvas.offsetTop;
@@ -212,6 +270,13 @@ Input.prototype.init = function(){
   });
   canvas.addEventListener('mouseenter',function(event){
     player.stop_moving = false;
+  });
+  window.addEventListener('keydown', function(event){
+    if (event.keyIdentifier == 'U+0055'){ // "u" (attempt upgrade)
+      player.try_upgrade();
+    }else if (event.keyIdentifier == 'U+0052'){ // "r" (attempt reverse)
+      player.try_reverse();
+    }
   });
 };
 
@@ -254,6 +319,11 @@ var ServerConnect = function(){
     spawn_interval = setInterval(function(){
       nm.niblit_factory.make_niblit();
     },100);
+    opponent_update_interval = setInterval(function(){
+      sc.socket.emit('game_update', {opponent_pos: player.avatar.position, niblits_eaten: niblits_eaten});
+      niblits_eaten = [];
+    },34);
+    setInterval(add_to_reverse_meter,600);
     Game.paused = false;
   });
 
@@ -263,14 +333,17 @@ var ServerConnect = function(){
       for (var i = 0; i < data.niblits_eaten.length; i++){
         for (var j = 0; j < nm.niblits.length; j++){
           if (data.niblits_eaten[i] == nm.niblits[j].n_id){
-            nm.niblits.splice(j, 1);
+            opponent.chomp(nm.niblits.splice(j, 1)[0]);
             j--;
           }
         }
       }
-    }
-    if (data.niblit_batch){
+    }else if (data.niblit_batch){
       nm.pending_niblits = nm.pending_niblits.concat(data.niblit_batch);
+    }else if (data.reverse){
+      reverse_avatars();
+    }else if (data.upgrade){
+      opponent.avatar.do_upgrade();
     }
     
   });
@@ -307,8 +380,8 @@ Game.paused = true;
       }
 
       (graphics && player) && graphics.draw();
-      (sc && player) && sc.socket.emit('game_update', {opponent_pos: player.avatar.position, niblits_eaten: niblits_eaten});
-      niblits_eaten = [];
+      // (sc && player) && sc.socket.emit('game_update', {opponent_pos: player.avatar.position, niblits_eaten: niblits_eaten});
+      // niblits_eaten = [];
 
       fps = (num_frames / (current_tick - start_tick)) * 1000;
       // Game.graphics.fps_counter.textContent = Math.round(fps);
