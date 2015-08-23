@@ -5,13 +5,38 @@
 }
 body {
   font: 13px Helvetica, Arial;
+  background: black;
+  color: grey;
 }
 
 #game_canvas {
-  background-color: lightblue;
+  background-color: black;
   position: absolute;
   top: 150px;
   left: 150px;
-  background-image:url(hexagon.svg);
-  background-repeat:repeat;
+  border: 1px white solid;
+}
+.niblit {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px; 
+}
+.pink {
+  background: #FFBADD;
+}
+.blue {
+  background: #01FFDF;
+}
+.brown {
+  background: #FFBA41;
+}
+.yellow {
+  background: #FFFF01;
+}
+.red {
+  background: #FF0000;
+}
+img {
+  width: 100px;
+  height: 100px;
 }
