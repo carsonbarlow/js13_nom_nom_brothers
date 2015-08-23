@@ -14,10 +14,40 @@
   </script>
   </head>
   <body>
-
-  <canvas id="game_canvas" width="720" height="640"></canvas>
-
-
+    <div id="title"></div>
+    <div id="host_game"></div>
+    <div id="join_game"></div>
+    <div id="enter_game_name_overlay">
+      <div id="enter_game_name_overlay_cancel" class="cancel"><div>
+      <div id="enter_game_name_overlay_confirm" class="confirm"><div>
+      Enter Game Name: <input type="text" name="game_name">
+    </div>
+    <div id="waiting_for_opponent">
+      Waiting For Opponent...
+      <div id="waiting_overlay_cancel" class="cancel"><div>
+    </div>
+    <div id="games_to_join">
+      <ul id="list_of_games"></ul>
+      <p id="no_games">No Games Hosted.  Please wait, or host your own.</p>
+    </div>
+    <div id="rematch">
+      <div id="rematch_cancel" class="cancel"><div>
+      <div id="rematch_confirm" class="confirm"><div>
+    </div>
+    <div id="HUD">
+      <div id="score">Score: 75</div>
+      <div id="opponent">Opponent: 67</div>
+      <div id="Nom">lv 3</div>
+      <div id="Mon">lv 2</div>
+      <div id="upgrade_bar_back">
+        15/40
+        <div id="upgrade_bar_fill"></div>
+      </div>
+      <div id="reverse_bar_back">
+        <div id="reverse_bar_fill"></div>
+      </div>
+    </div>
+    <canvas id="game_canvas" width="720" height="640"></canvas>
      <script src="/socket.io/socket.io.js"></script>
      <script type="text/javascript" src="game.js"></script>
     <!-- // <script type="text/javascript" src="cb_testing.js"></script> -->

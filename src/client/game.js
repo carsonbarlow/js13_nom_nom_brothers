@@ -28,6 +28,52 @@ window.onload = function(){
   input.init();
 };
 
+var GameAdmin = function(){
+  this.state = 'menu'; //menu, waiting_for_player, games_to_join, in_play, paused, end_game
+  this.canvas = document.getElementById('game_canvas');
+  this.host_game = document.getElementById('host_game');
+  this.join_game = document.getElementById('join_game');
+  this.enter_game_name_overlay = document.getElementById('enter_game_name_overlay');
+  this.waiting_for_opponent = document.getElementById('waiting_for_opponent');
+  this.games_to_join = document.getElementById('games_to_join');
+  this.rematch = document.getElementById('rematch');
+};
+GameAdmin.prototype.hide_all = function(){
+  this.canvas.style.display = 'none';
+  this.host_game.style.display = 'none';
+  this.join_game.style.display = 'none';
+  this.enter_game_name_overlay.style.display = 'none';
+  this.waiting_for_opponent.style.display = 'none';
+  this.games_to_join.style.display = 'none';
+  this.rematch.style.display = 'none';
+};
+GameAdmin.prototype.enter_menu = function(){
+  this.hide_all();
+  this.host_game.style.display = 'block';
+  this.join_game.style.display = 'block';
+};
+GameAdmin.prototype.create_game_mode = function(){
+  this.hide_all();
+  this.enter_game_name_overlay.style.display = 'block';
+};
+GameAdmin.prototype.register_host = function(){
+  this.hide_all();
+  this.waiting_for_opponent.style.display = 'block';
+};
+GameAdmin.prototype.show_hosted_games = function(){
+  this.hide_all();
+  this.games_to_join.style.display = 'block';
+};
+GameAdmin.prototype.join_game = function(){};
+GameAdmin.prototype.start_match = function(){
+  this.hide_all();
+  this.canvas.style.display = 'block';
+};
+GameAdmin.prototype.end_match = function(){
+  this.hide_all();
+  this.rematch.style.display = 'block';
+};
+GameAdmin.prototype.clean_up_match = function(){};
 
 var Player = function(){
   this.score = 0;
