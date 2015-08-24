@@ -11,8 +11,11 @@ function handler(request, response)
     "/": "../client/index.html",
     "/game.js": "../client/game.js",
     "/style.css": "../client/style.css",
-    '/cb_testing.js': "../client/cb_testing.js",
-    '/test.js': "../client/test.js"
+    "/monHead.svg": "../client/monHead.svg",
+    "/monMouth.svg": "../client/monMouth.svg",
+    "/nomHead.svg": "../client/nomHead.svg",
+    "/nomMouth.svg": "../client/nomMouth.svg",
+    "/eat.svg": "../eat.svg"
   };
 
   if (url.indexOf("/?") == 0)

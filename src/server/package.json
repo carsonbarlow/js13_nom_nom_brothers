@@ -1,0 +1,8 @@
+{
+  "name": "pairing_up",
+  "version": "0.0.1",
+  "description": "Figuring out how to pair up clients",
+  "dependencies": {
+    "socket.io": "~1.0.5"
+  }
+}

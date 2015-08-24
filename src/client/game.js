@@ -16,7 +16,16 @@ var utils,
   ARENA_WIDTH = 1200,
   ARENA_HEIGHT = 1200,
   MAX_NIBLITS = 200,
-  REVERSE_MAX = 100;
+  REVERSE_MAX = 100,
+  DOMURL = window.URL || window.webkitURL || window,
+  ART_COMMON = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">',
+  ART = {
+    nomHead: ART_COMMON + '<g><circle fill="#32D95C" cx="74" cy="75" r="71"/></g><circle fill="#ECF230" cx="74" cy="50" r="22"/><circle cx="74" cy="49" r="10"/><ellipse cx="74" cy="108" rx="22" ry="22"/><path fill="#FFFFFF" d="M68.4 129.7l5.8-14.8l9.2 13.8C83.5 128 74 132 68 129.7z"/></svg>',
+    monHead: ART_COMMON + '<g><circle fill="#FF5A35" cx="72" cy="75" r="67"/></g><circle fill="#ECF230" cx="38" cy="50" r="12"/><circle fill="#ECF230" cx="73" cy="47" r="13"/><circle fill="#ECF230" cx="108" cy="50" r="13"/><circle cx="38" cy="50" r="5"/><circle cx="73" cy="47" r="5"/><circle cx="108" cy="50" r="5"/></svg>',
+    nomMouth: ART_COMMON + '<ellipse cx="74" cy="108" rx="22" ry="22"/><path fill="#FFFFFF" d="M68.4 129.7l5.8-14.8l9.2 13.8C83.5 128 74 132 68 129.7z"/></svg>',
+    monMouth: ART_COMMON + '<ellipse cx="73" cy="106" rx="21" ry="21"/><path fill="#FFFFFF" d="M63.3 87.6l9.4 13.1l7.2-14.8C79.9 85 72 82 63 87.6z"/></svg>',
+    eat: '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 50 15" enable-background="new 0 0 50 15" xml:space="preserve"><path d="M49.3 8c0 13.4-10.5 2-23.8 2S0.9 21 0 8s10.8-2 24.2-2S49.3-5.4 49 8z"/></svg>'
+  };
 
 window.onload = function(){
   utils = new Utils();
@@ -27,6 +36,8 @@ window.onload = function(){
   sc.lets_play();
   input.init();
 };
+
+//============================================== Game Admin ==========================================\\
 
 var GameAdmin = function(){
   this.state = 'menu'; //menu, waiting_for_player, games_to_join, in_play, paused, end_game
@@ -75,11 +86,13 @@ GameAdmin.prototype.end_match = function(){
 };
 GameAdmin.prototype.clean_up_match = function(){};
 
-var Player = function(){
+//============================================== Player ==========================================\\
+
+var Player = function(who){
   this.score = 0;
   this.old_score = 0;
   this.upgrade_points = 0;
-  this.avatar = new Avatar;
+  this.avatar = new Avatar(who);
 };
 
 Player.prototype.chomp = function(niblit){
@@ -121,10 +134,26 @@ function add_to_reverse_meter(){
   if (reverse_meter > REVERSE_MAX){reverse_meter = REVERSE_MAX}
 }
 
-var Avatar = function(){
-  this.position = {x:0,y:0};
+//============================================== Avatar ==========================================\\
+
+var Avatar = function(who){
+
+  this.img_body = document.createElement('IMG');
+  this.img_mouth = document.createElement('IMG');
+  this.img_eat = document.createElement('IMG');
+  if (who === 'nom'){
+    this.position = {x: 50, y: 50};
+    this.color = 'red';
+    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_mouth.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
+  }else{
+    this.position = {x:150, y: 50};
+    this.color = 'blue';
+    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_mouth.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
+  }
+  this.img_eat.src = DOMURL.createObjectURL(new Blob([ART.eat], {type: 'image/svg+xml;charset=utf-8'}));
   this.radius = 25;
-  this.color = 'red';
   this.speed = 150;
   this.level = 1;
   this.rank = 1;
@@ -155,6 +184,9 @@ Avatar.prototype.do_upgrade = function(){
     this.radius += 5;
   }
 }
+
+//============================================== Niblit & Manager ==========================================\\
+
 var Niblit = function(config){
   this.x = config.x;
   this.y = config.y;
@@ -201,6 +233,8 @@ var NiblitFactory = function(niblit_manager){
   };
 };
 
+//============================================== Utils ==========================================\\
+
 var Utils = function(){};
 Utils.prototype.normalize = function(from_x, from_y, to_x, to_y){
  var  x_dif = to_x - from_x;
@@ -215,15 +249,12 @@ Utils.prototype.proximity = function(obj_1,obj_2){
   return Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));
 };
 
+//============================================== Graphics ==========================================\\
 
 var Graphics = function(){
   this.canvas = document.getElementById('game_canvas');
   this.context = this.canvas.getContext('2d');
-  // this.draw_lists = [[],[],[]]; //[background, forground, particle layer]
   this.camera = {x: 0, y:0};
-
-  // Game.graphics.image = document.createElement('img');
-  // Game.graphics.image.src = 'sprites.png';
 };
 
 Graphics.prototype.draw = function(){
@@ -267,22 +298,32 @@ Graphics.prototype.draw = function(){
   }
 
   //draw PlayerB
-  ctx.beginPath();
-  ctx.arc(opponent.avatar.position.x - this.camera.x, opponent.avatar.position.y - this.camera.y, opponent.avatar.radius, 0, 2 * Math.PI, false);
-  ctx.fillStyle = opponent.avatar.color;
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = '#003300';
-  ctx.stroke();
+
+
+
+
+
+
+  // ctx.beginPath();
+  ctx.drawImage(opponent.avatar.img_body, opponent.avatar.position.x - this.camera.x - opponent.avatar.radius, opponent.avatar.position.y - this.camera.y - opponent.avatar.radius, opponent.avatar.radius*2, opponent.avatar.radius*2);
+  ctx.drawImage(opponent.avatar.img_mouth, opponent.avatar.position.x - this.camera.x - opponent.avatar.radius, opponent.avatar.position.y - this.camera.y - opponent.avatar.radius, opponent.avatar.radius*2, opponent.avatar.radius*2);
+  // ctx.arc(opponent.avatar.position.x - this.camera.x, opponent.avatar.position.y - this.camera.y, opponent.avatar.radius, 0, 2 * Math.PI, false);
+  // ctx.fillStyle = opponent.avatar.color;
+  // ctx.fill();
+  // ctx.lineWidth = 3;
+  // ctx.strokeStyle = '#003300';
+  // ctx.stroke();
 
   //draw playerA
-  ctx.beginPath();
-  ctx.arc(player.avatar.position.x - this.camera.x, player.avatar.position.y - this.camera.y, player.avatar.radius, 0, 2 * Math.PI, false);
-  ctx.fillStyle = player.avatar.color;
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = '#003300';
-  ctx.stroke();
+  ctx.drawImage(player.avatar.img_body, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
+  ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
+  // ctx.beginPath();
+  // ctx.arc(player.avatar.position.x - this.camera.x, player.avatar.position.y - this.camera.y, player.avatar.radius, 0, 2 * Math.PI, false);
+  // ctx.fillStyle = player.avatar.color;
+  // ctx.fill();
+  // ctx.lineWidth = 3;
+  // ctx.strokeStyle = '#003300';
+  // ctx.stroke();
 
 
   //HUD
@@ -297,6 +338,8 @@ Graphics.prototype.draw = function(){
   ctx.fillText('Reverse: '+reverse_meter+'/'+REVERSE_MAX, 50, 75);
   ctx.restore();
 };
+
+//============================================== Input ==========================================\\
 
 var Input = function(){
   this.mouse = {x:0,y:0};
@@ -326,7 +369,7 @@ Input.prototype.init = function(){
   });
 };
 
-
+//============================================== ServerConnect ==========================================\\
 
 var ServerConnect = function(){
   this.socket = io.connect(document.location.href);
@@ -337,25 +380,15 @@ var ServerConnect = function(){
   }
 
   this.socket.on('game_start', function(data){
-    player = new Player();
-    opponent = new Player();
     if (data.game_host){
-      player.avatar.color = 'red';
-      player.avatar.position.x = 50;
-      player.avatar.position.y = 50;
-      opponent.avatar.color = 'blue';
-      opponent.avatar.position.x = 500;
-      opponent.avatar.position.y = 500;
+      player = new Player('nom');
+      opponent = new Player('mon');
       host_interval = setInterval(function(){
         nm.ready_niblit_batch();
       }, 5000);
     }else{
-      opponent.avatar.color = 'red';
-      opponent.avatar.position.x = 50;
-      opponent.avatar.position.y = 50;
-      player.avatar.color = 'blue';
-      player.avatar.position.x = 500;
-      player.avatar.position.y = 500;
+      player = new Player('mon');
+      opponent = new Player('nom');
     }
     nm.avatars.push(player.avatar);
     nm.avatars.push(opponent.avatar);
@@ -395,6 +428,7 @@ var ServerConnect = function(){
   });
 };
 
+//============================================== Game Update ==========================================\\
 
 Game.paused = true;
   Game.update = function(delta){
