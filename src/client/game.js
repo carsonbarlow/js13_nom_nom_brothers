@@ -40,51 +40,74 @@ window.onload = function(){
 //============================================== Game Admin ==========================================\\
 
 var GameAdmin = function(){
-  this.state = 'menu'; //menu, waiting_for_player, games_to_join, in_play, paused, end_game
-  this.canvas = document.getElementById('game_canvas');
-  this.host_game = document.getElementById('host_game');
-  this.join_game = document.getElementById('join_game');
-  this.enter_game_name_overlay = document.getElementById('enter_game_name_overlay');
-  this.waiting_for_opponent = document.getElementById('waiting_for_opponent');
-  this.games_to_join = document.getElementById('games_to_join');
-  this.rematch = document.getElementById('rematch');
+  var state = 'menu', //menu, waiting_for_player, games_to_join, in_play, paused, end_game
+    canvas = document.getElementById('game_canvas'),
+    host_game = document.getElementById('host_game'),
+    join_game = document.getElementById('join_game'),
+    enter_game_name_overlay = document.getElementById('enter_game_name_overlay'),
+    waiting_for_opponent = document.getElementById('waiting_for_opponent'),
+    games_to_join = document.getElementById('games_to_join'),
+    rematch = document.getElementById('rematch'),
+    hud = document.getElementById('HUD');
+  
+  function hide_all(){
+    hud.style.display = 'none';
+    canvas.style.display = 'none';
+    host_game.style.display = 'none';
+    join_game.style.display = 'none';
+    enter_game_name_overlay.style.display = 'none';
+    waiting_for_opponent.style.display = 'none';
+    games_to_join.style.display = 'none';
+    rematch.style.display = 'none';
+  };
+  function enter_menu(){
+    hide_all();
+    host_game.style.display = 'block';
+    join_game.style.display = 'block';
+  };
+  function create_game_mode(){
+    hide_all();
+    enter_game_name_overlay.style.display = 'block';
+  };
+  function register_host(){
+    var game_name = document.getElementById('input_game_name').value;
+    if (game_name){
+      hide_all();
+      waiting_for_opponent.style.display = 'block';
+      //TODO: send game name to server.
+    }
+  };
+  function show_hosted_games(){
+    hide_all();
+    games_to_join.style.display = 'block';
+  };
+  function join_game(){};
+  function start_match(){
+    hide_all();
+    hud.style.display = 'block'
+    canvas.style.display = 'block';
+  };
+  function end_match(){
+    hide_all();
+    rematch.style.display = 'block';
+  };
+  function clean_up_match(){};
+
+
+  //setting up event listeners.
+  host_game.addEventListener('click',create_game_mode);
+  document.getElementById('enter_game_name_overlay_confirm').addEventListener('click',register_host);
+  document.getElementById('enter_game_name_overlay_cancel').addEventListener('click',enter_menu);
+  document.getElementById('waiting_overlay_cancel')addEventListener('click',function(event){
+    //send cancel notice to server.
+    enter_menu();
+  });
+  
+
 };
-GameAdmin.prototype.hide_all = function(){
-  this.canvas.style.display = 'none';
-  this.host_game.style.display = 'none';
-  this.join_game.style.display = 'none';
-  this.enter_game_name_overlay.style.display = 'none';
-  this.waiting_for_opponent.style.display = 'none';
-  this.games_to_join.style.display = 'none';
-  this.rematch.style.display = 'none';
-};
-GameAdmin.prototype.enter_menu = function(){
-  this.hide_all();
-  this.host_game.style.display = 'block';
-  this.join_game.style.display = 'block';
-};
-GameAdmin.prototype.create_game_mode = function(){
-  this.hide_all();
-  this.enter_game_name_overlay.style.display = 'block';
-};
-GameAdmin.prototype.register_host = function(){
-  this.hide_all();
-  this.waiting_for_opponent.style.display = 'block';
-};
-GameAdmin.prototype.show_hosted_games = function(){
-  this.hide_all();
-  this.games_to_join.style.display = 'block';
-};
-GameAdmin.prototype.join_game = function(){};
-GameAdmin.prototype.start_match = function(){
-  this.hide_all();
-  this.canvas.style.display = 'block';
-};
-GameAdmin.prototype.end_match = function(){
-  this.hide_all();
-  this.rematch.style.display = 'block';
-};
-GameAdmin.prototype.clean_up_match = function(){};
+
+
+
 
 //============================================== Player ==========================================\\
 
@@ -299,32 +322,12 @@ Graphics.prototype.draw = function(){
 
   //draw PlayerB
 
-
-
-
-
-
-  // ctx.beginPath();
   ctx.drawImage(opponent.avatar.img_body, opponent.avatar.position.x - this.camera.x - opponent.avatar.radius, opponent.avatar.position.y - this.camera.y - opponent.avatar.radius, opponent.avatar.radius*2, opponent.avatar.radius*2);
   ctx.drawImage(opponent.avatar.img_mouth, opponent.avatar.position.x - this.camera.x - opponent.avatar.radius, opponent.avatar.position.y - this.camera.y - opponent.avatar.radius, opponent.avatar.radius*2, opponent.avatar.radius*2);
-  // ctx.arc(opponent.avatar.position.x - this.camera.x, opponent.avatar.position.y - this.camera.y, opponent.avatar.radius, 0, 2 * Math.PI, false);
-  // ctx.fillStyle = opponent.avatar.color;
-  // ctx.fill();
-  // ctx.lineWidth = 3;
-  // ctx.strokeStyle = '#003300';
-  // ctx.stroke();
 
   //draw playerA
   ctx.drawImage(player.avatar.img_body, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
   ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
-  // ctx.beginPath();
-  // ctx.arc(player.avatar.position.x - this.camera.x, player.avatar.position.y - this.camera.y, player.avatar.radius, 0, 2 * Math.PI, false);
-  // ctx.fillStyle = player.avatar.color;
-  // ctx.fill();
-  // ctx.lineWidth = 3;
-  // ctx.strokeStyle = '#003300';
-  // ctx.stroke();
-
 
   //HUD
   //scores
