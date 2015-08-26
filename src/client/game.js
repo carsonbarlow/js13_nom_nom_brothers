@@ -281,7 +281,7 @@ Graphics.prototype.draw = function(){
 
   //draw border
   ctx.lineWidth = 15;
-  ctx.strokeStyle = '#996600';
+  ctx.strokeStyle = '#F23869';
   ctx.beginPath();
   ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
   ctx.stroke();

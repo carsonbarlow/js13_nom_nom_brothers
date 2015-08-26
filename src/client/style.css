@@ -4,17 +4,19 @@
   box-sizing: border-box;
 }
 body {
-  font: 13px Helvetica, Arial;
+  font: 16px Helvetica, Arial;
   background: black;
-  color: grey;
+  color: white;
 }
-
+.container {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 720px;
+}
 #game_canvas {
   background-color: black;
-  position: absolute;
-  top: 150px;
-  left: 150px;
-  border: 1px white solid;
+  border: 5px #32D95C solid;
 }
 .niblit {
   border-radius: 50%;
@@ -36,7 +38,47 @@ body {
 .red {
   background: #FF0000;
 }
+.purple {
+  background: #431359;
+}
+.green {
+  background: #32D95C;
+}
+.darkPink {
+  background: #F23869;
+}
+.orange {
+  background: #FF5A35;
+}
 img {
   width: 100px;
   height: 100px;
+}
+.btn {
+  font-family: Arial;
+  color: #ffffff;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  width: 130px;
+  display: inline-block;
+}
+.wrap {
+  height: 100px;
+  display: table;
+  padding:10px;
+  background: black;
+  width: 40%;
+}
+
+.wrap p {
+  display: table-cell;
+  vertical-align: middle;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 18px;
+  padding-left: 28px;
+}
+.clear {
+  clear: both;
 }
