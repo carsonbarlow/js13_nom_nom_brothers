@@ -98,7 +98,7 @@ var GameAdmin = function(){
   host_game.addEventListener('click',create_game_mode);
   document.getElementById('enter_game_name_overlay_confirm').addEventListener('click',register_host);
   document.getElementById('enter_game_name_overlay_cancel').addEventListener('click',enter_menu);
-  document.getElementById('waiting_overlay_cancel')addEventListener('click',function(event){
+  document.getElementById('waiting_overlay_cancel').addEventListener('click',function(event){
     //send cancel notice to server.
     enter_menu();
   });
@@ -304,7 +304,7 @@ Graphics.prototype.draw = function(){
 
   //draw border
   ctx.lineWidth = 15;
-  ctx.strokeStyle = '#996600';
+  ctx.strokeStyle = '#F23869';
   ctx.beginPath();
   ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
   ctx.stroke();
