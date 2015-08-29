@@ -4,10 +4,11 @@
   box-sizing: border-box;
 }
 body {
-  font: 16px Helvetica, Arial;
+  font: 16px verdana, sans-serif;
   background: black;
   color: white;
   cursor: default;
+  font-weight: bold;
 }
 .container {
   display: block;
@@ -40,18 +41,22 @@ body {
   background: #FF0000;
 }
 .purple {
-  background: #431359;
+  color: #431359;
 }
 .green {
-  background: #32D95C;
+  color: rgba(50,217,92,0.5)
+}
+.green:hover {
+  color: #34DC5A;
+  cursor: pointer;
 }
 .darkPink {
-  background: #F23869;
+  color: #F23869;
 }
 .orange {
   background: #FF5A35;
 }
-img {
+.small {
   width: 100px;
   height: 100px;
 }
@@ -62,6 +67,7 @@ img {
   text-decoration: none;
   width: 130px;
   display: inline-block;
+  font-size: 16px;
 }
 .wrap {
   height: 100px;
@@ -78,8 +84,56 @@ img {
   text-transform: uppercase;
   font-weight: 700;
   font-size: 18px;
-  padding-left: 28px;
 }
 .clear {
   clear: both;
+}
+.title {
+  position: absolute;
+  top: 500px;
+  font-size: 32px;
+}
+.host {
+  left: 45%;
+  text-shadow: 8px 8px 0 rgba(255,0,180,0.5);
+}
+.game_name {
+  left: 40%;
+}
+.waiting {
+  left: 30%;
+}
+.blink_me {
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: .5s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+
+    -moz-animation-name: blinker;
+    -moz-animation-duration: .5s;
+    -moz-animation-timing-function: linear;
+    -moz-animation-iteration-count: infinite;
+
+    animation-name: blinker;
+    animation-duration: .5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@-moz-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@-webkit-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
 }
