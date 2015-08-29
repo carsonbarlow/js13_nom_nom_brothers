@@ -8,6 +8,7 @@ body {
   background: black;
   color: white;
   cursor: default;
+  font-weight: bold;
 }
 .container {
   display: block;
@@ -40,13 +41,17 @@ body {
   background: #FF0000;
 }
 .purple {
-  background: #431359;
+  color: #431359;
 }
 .green {
-  background: #32D95C;
+  color: rgba(50,217,92,0.5)
+}
+.green:hover {
+  color: #34DC5A;
+  cursor: pointer;
 }
 .darkPink {
-  background: #F23869;
+  color: #F23869;
 }
 .orange {
   background: #FF5A35;
@@ -86,10 +91,11 @@ body {
 .title {
   position: absolute;
   top: 500px;
-  font-size: 22px;
+  font-size: 32px;
 }
 .host {
-  left: 50%;
+  left: 45%;
+  text-shadow: 8px 8px 0 rgba(255,0,180,0.5);
 }
 .game_name {
   left: 40%;
