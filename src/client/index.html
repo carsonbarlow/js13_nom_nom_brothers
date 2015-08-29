@@ -15,25 +15,27 @@
   </head>
   <body>
   <div class="container">
-    <div id="title">Game Title</div>
+    <div id="title" class="blink_me neon"><img src="title.svg" /></div>
+    <div class="title host">
     <div id="host_game" class="btn purple">Host Game</div>
     <div id="join_game" class="btn green">Join Game</div>
-    <div id="enter_game_name_overlay">
+  </div>
+    <div id="enter_game_name_overlay" class="title game_name">
       Enter Game Name: <input id="input_game_name" type="text" name="game_name">
-      <div id="enter_game_name_overlay_cancel" class="cancel btn orange">Cancel</div>
+      <div id="enter_game_name_overlay_cancel" class="cancel btn darkPink">Cancel</div>
       <div id="enter_game_name_overlay_confirm" class="confirm btn green">Confirm</div>
     </div>
-    <div id="waiting_for_opponent">
+    <div id="waiting_for_opponent" class="title waiting">
       Waiting For Opponent...
-      <div id="waiting_overlay_cancel" class="cancel btn orange">Cancel</div>
+      <div id="waiting_overlay_cancel" class="cancel btn darkPink">Cancel</div>
     </div>
-    <div id="games_to_join">
-      <div id="games_to_join_cancel" class="cancel btn orange">Cancel</div>
-      <ul id="list_of_games"></ul>
+    <div id="games_to_join" class="title waiting">
       <p id="no_games">No Games Hosted.  Please wait, or host your own.</p>
+      <div id="games_to_join_cancel" class="cancel btn darkPink">Cancel</div>
+      <ul id="list_of_games"></ul>
     </div>
-    <div id="rematch">
-      <div id="rematch_cancel" class="cancel btn orange">Cancel</div>
+    <div id="rematch" class="title waiting">
+      <div id="rematch_cancel" class="cancel btn darkPink">Cancel</div>
       <div id="rematch_confirm" class="confirm btn green">Confirm</div>
     </div>
     <div id="HUD">
@@ -41,14 +43,14 @@
         <div id="Nom">
           <p>lv 3</p>
         </div>
-        <img src="nom.svg" />
+        <img class="small" src="nom.svg" />
         <p>Score: 75</p>
       </div>
       <div id="opponent" class="wrap" style="float: right">
         <div id="Mon">
           <p>lv 2</p>
         </div>
-        <img src="mon.svg" />
+        <img class="small" src="mon.svg" />
         <p>Opponent: 67</p>
       </div>
       <div class="clear">
@@ -56,9 +58,9 @@
         15/40
         <div id="upgrade_bar_fill" class="green"></div>
       </div>
-      <div id="reverse_bar_back" class="orange">
+      <div id="reverse_bar_back" class="darkPink">
         15/40
-        <div id="reverse_bar_fill" class="orange"></div>
+        <div id="reverse_bar_fill" class="darkPink"></div>
       </div>
     </div>
     </div>
