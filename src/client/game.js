@@ -2,10 +2,12 @@
 var utils,
   sc,
   nm,
+  ga,
   graphics,
   input,
   player,
   opponent,
+  game_name,
   reverse_meter = 0,
   rolling_niblit_id = 1,
   niblits_eaten = [],
@@ -33,8 +35,10 @@ window.onload = function(){
   input = new Input();
   sc = new ServerConnect();
   nm = new NiblitManager();
-  sc.lets_play();
+  // sc.lets_play();
   input.init();
+  ga = new GameAdmin();
+  ga.enter_menu();
 };
 
 //============================================== Game Admin ==========================================\\
@@ -47,6 +51,8 @@ var GameAdmin = function(){
     enter_game_name_overlay = document.getElementById('enter_game_name_overlay'),
     waiting_for_opponent = document.getElementById('waiting_for_opponent'),
     games_to_join = document.getElementById('games_to_join'),
+    list_of_games = document.getElementById('list_of_games'),
+    no_games = document.getElementById('no_games');
     rematch = document.getElementById('rematch'),
     hud = document.getElementById('HUD');
   
@@ -70,18 +76,43 @@ var GameAdmin = function(){
     enter_game_name_overlay.style.display = 'block';
   };
   function register_host(){
-    var game_name = document.getElementById('input_game_name').value;
-    if (game_name){
+    game_name = document.getElementById('input_game_name').value;
+    game_name = game_name.replace(/\W/g, '');
+    if (game_name != ''){
       hide_all();
       waiting_for_opponent.style.display = 'block';
-      //TODO: send game name to server.
+      sc.register_game();
     }
   };
-  function show_hosted_games(){
+  function get_hosted_games(){
+    sc.get_hosted_games();
+  }
+  function show_hosted_games(games_list){
     hide_all();
     games_to_join.style.display = 'block';
+    // list_of_games.innerHTML = '';
+    var games = '';
+    for (var i = 0; i < games_list.length; i++){
+      games += '<li id="game_id_'+games_list[i]+'" class="avalible_game">'+games_list[i]+'</li>'
+    }
+    list_of_games.innerHTML = games;
+    for (i = 0; i < games_list.length; i++){
+      (function(_i){
+        document.getElementById('game_id_'+games_list[_i]).addEventListener('click', function(){
+          sc.join_game(games_list[_i]);
+        });
+      })(i);
+      
+    }
+    if (games_list.length){
+      no_games.style.display = 'none';
+    }else{
+      no_games.style.display = 'block';
+    }
+
   };
-  function join_game(){};
+  function join_game(){
+  };
   function start_match(){
     hide_all();
     hud.style.display = 'block'
@@ -100,10 +131,17 @@ var GameAdmin = function(){
   document.getElementById('enter_game_name_overlay_cancel').addEventListener('click',enter_menu);
   document.getElementById('waiting_overlay_cancel').addEventListener('click',function(event){
     //send cancel notice to server.
+    sc.unregister_game();
     enter_menu();
   });
-  
-
+  join_game.addEventListener('click',get_hosted_games);
+  document.getElementById('games_to_join_cancel').addEventListener('click', function(){
+    sc.stop_browsing();
+    enter_menu();
+  });
+  document.getElementById('rematch_cancel').addEventListener('click', clean_up_match);
+  this.enter_menu = enter_menu;
+  this.show_hosted_games = show_hosted_games;
 };
 
 
@@ -382,6 +420,32 @@ var ServerConnect = function(){
     this.socket.emit('lets_play',{})
   }
 
+  this.register_game = function(){
+    console.log(game_name);
+    this.socket.emit('register_game', {name: game_name});
+  };
+
+  this.unregister_game = function(){
+    this.socket.emit('unregister_game', {name: game_name});
+  };
+
+  this.get_hosted_games = function(){
+    console.log('hey!');
+    this.socket.emit('get_registered_games',{});
+  };
+
+  this.socket.on('registered_games', function(data){
+    ga.show_hosted_games(data);
+  });
+
+  this.stop_browsing = function(){
+    this.socket.emit('stop_browsing',{});
+  };
+
+  this.join_game = function(name){
+    this.socket.emit('join_game', {name: name});
+  }
+
   this.socket.on('game_start', function(data){
     if (data.game_host){
       player = new Player('nom');
@@ -427,7 +491,6 @@ var ServerConnect = function(){
     }else if (data.upgrade){
       opponent.avatar.do_upgrade();
     }
-    
   });
 };
 
@@ -495,7 +558,14 @@ Game.paused = true;
 
 
 
-
+//TODO:
+  // get into game (server.js: START HERE)
+ // get eat back, and animate eating
+ // put hud elements in dom instead of canvas
+ // add timer to game
+ // add navigation back to game
+ // add navigation back to menu from game
+ // add you win/lose
 
 
 

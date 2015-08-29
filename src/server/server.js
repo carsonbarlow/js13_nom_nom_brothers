@@ -1,6 +1,6 @@
 var http = require('http');
 var app = require('http').createServer(handler),
-  io = require('socket.io').listen(app),
+  io = require('socket.io').listen(app, {log: false}),
   fs = require('fs');
 
 function handler(request, response)
@@ -45,16 +45,24 @@ function handler(request, response)
 }
 
 var S = {
-  // games: [],
+  games: [],
+  browsing_sockets: [],
   // unique_number: 1,
   // time_stamp: 0,
-  waiting_socket: null
+  waiting_socket: null,
+  get_registered_games: function(){
+    var games_list = [];
+    for (var i = 0; i < this.games.length; i++){
+      games_list.push(this.games[i].name);
+    }
+    return games_list;
+  }
 };
 
 // DEBUG BEGIN
 S.log = function(socket, s)
 {
-  console.log("[" + (new Date()).getTime() + "] [" + socket.id + "] " + s);
+  // console.log("[" + (new Date()).getTime() + "] [" + socket.id + "] " + s);
 }
 // DEBUG END
 
@@ -80,8 +88,43 @@ io.sockets.on('connection', function(socket){
     socket.opponent.emit('game_update', data);
     socket.emit('game_update', data);
   });
+  socket.on('register_game', function(data){
+    console.log('registered game:' + data.name);
+    S.games.push({name: data.name, host: socket});
+    for (var j = 0; j < S.browsing_sockets.length; j++){
+      S.browsing_sockets[j].emit('registered_games', S.get_registered_games());
+    }
+  });
+  socket.on('unregister_game', function(data){
+    for (var i = 0; i < S.games.length; i++){
+      if (data.name == S.games[i].name){
+        S.games.splice(i, 1);
+        for (var j = 0; j < S.browsing_sockets.length; j++){
+          S.browsing_sockets[j].emit('registered_games', S.get_registered_games());
+        }
+        break;
+      }
+    }
+  });
+  socket.on('get_registered_games', function(data){
+    S.browsing_sockets.push(socket);
+    console.log('REGISTERED GAMES:'+S.get_registered_games());
+    socket.emit('registered_games', S.get_registered_games());
+  });
+  socket.on('stop_browsing', function(data){
+    for (var i = 0; i < S.browsing_sockets.length; i++){
+      if (socket == S.browsing_sockets[i]){
+        S.browsing_sockets.splice(i, 1);
+        break;
+      }
+    }
+  });
+  socket.on('join_game', function(data){
+    console.log(data.name);
+    //START HERE
+  });
 });
 
 
-app.listen(8080);
+app.listen(8000);
 console.log('Ready!');
