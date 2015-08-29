@@ -90,7 +90,7 @@ io.sockets.on('connection', function(socket){
   });
   socket.on('register_game', function(data){
     console.log('registered game:' + data.name);
-    S.games.push({name: data.name, host: socket});
+    S.games.push({name: data.name, socket: socket});
     for (var j = 0; j < S.browsing_sockets.length; j++){
       S.browsing_sockets[j].emit('registered_games', S.get_registered_games());
     }
@@ -121,7 +121,35 @@ io.sockets.on('connection', function(socket){
   });
   socket.on('join_game', function(data){
     console.log(data.name);
-    //START HERE
+    for (var i = 0; i < S.games.length; i++){
+      if (S.games[i].name == data.name){
+        var the_game = S.games.splice(i, 1)[0];
+        the_game.socket.opponent = socket;
+        socket.opponent = the_game.socket;
+        for (var j = 0; j < S.browsing_sockets.length; j++){
+          S.browsing_sockets[j].emit('registered_games', S.get_registered_games());
+          if (S.browsing_sockets[j] == socket){
+            S.browsing_sockets.splice(j,1);
+            j--;
+          }
+        }
+        the_game.socket.emit('game_start', {game_host: true});
+        socket.emit('game_start', {game_host: false});
+        break;
+      }
+    }
+  });
+  socket.on('left_game', function(data){
+    socket.opponent.emit('left_game', data);
+  });
+  socket.on('lets_rematch', function(data){
+    socket.ready_for_rematch = true;
+    if (socket.opponent.ready_for_rematch){
+      socket.ready_for_rematch = false;
+      socket.opponent.ready_for_rematch = false;
+      socket.emit('do_rematch',{});
+      socket.opponent.emit('do_rematch',{});
+    }
   });
 });
 

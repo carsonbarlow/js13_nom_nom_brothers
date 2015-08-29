@@ -8,11 +8,16 @@ var utils,
   player,
   opponent,
   game_name,
+  game_minutes,
+  game_seconds,
+  game_centa_seconds,
+  is_host,
   reverse_meter = 0,
   rolling_niblit_id = 1,
   niblits_eaten = [],
   host_interval,
   spawn_interval,
+  reverse_meter_interval,
   SCREEN_WIDTH = 720,
   SCREEN_HEIGHT = 640
   ARENA_WIDTH = 1200,
@@ -52,9 +57,10 @@ var GameAdmin = function(){
     waiting_for_opponent = document.getElementById('waiting_for_opponent'),
     games_to_join = document.getElementById('games_to_join'),
     list_of_games = document.getElementById('list_of_games'),
-    no_games = document.getElementById('no_games');
+    no_games = document.getElementById('no_games'),
     rematch = document.getElementById('rematch'),
-    hud = document.getElementById('HUD');
+    hud = document.getElementById('HUD'),
+    timer_interval;
   
   function hide_all(){
     hud.style.display = 'none';
@@ -111,18 +117,76 @@ var GameAdmin = function(){
     }
 
   };
-  function join_game(){
-  };
+  function join_game(){};
   function start_match(){
+    if (is_host){
+      player = new Player('nom');
+      opponent = new Player('mon');
+      host_interval = setInterval(function(){
+        nm.ready_niblit_batch();
+      }, 5000);
+    }else{
+      player = new Player('mon');
+      opponent = new Player('nom');
+    }
+    nm.avatars.push(player.avatar);
+    nm.avatars.push(opponent.avatar);
+    if (is_host){
+      nm.ready_niblit_batch();
+    }
+    spawn_interval = setInterval(function(){
+      nm.niblit_factory.make_niblit();
+    },100);
+    opponent_update_interval = setInterval(function(){
+      sc.socket.emit('game_update', {opponent_pos: player.avatar.position, niblits_eaten: niblits_eaten});
+      niblits_eaten = [];
+    },34);
+    reverse_meter_interval = setInterval(add_to_reverse_meter,600);
+
+    Game.paused = false;
+
+
     hide_all();
     hud.style.display = 'block'
     canvas.style.display = 'block';
+    game_minutes = 0;
+    game_seconds = 5;
+    game_centa_seconds = 0;
+    timer_interval = setInterval(function(){
+      game_centa_seconds--;
+      if (game_centa_seconds < 0){
+        game_centa_seconds += 100;
+        game_seconds--;
+        if (game_seconds < 0){
+          game_seconds += 60;
+          game_minutes--;
+          if (game_minutes < 0){
+            clearInterval(timer_interval);
+            end_match();
+          }
+        }
+      }
+    },10);
+
   };
   function end_match(){
+    Game.paused = true;
+    if (is_host){
+      clearInterval(host_interval);
+    }
+    clearInterval(spawn_interval);
+    clearInterval(reverse_meter_interval);
+    niblits_eaten = [];
     hide_all();
     rematch.style.display = 'block';
   };
-  function clean_up_match(){};
+  function clean_up_match(){
+    reverse_meter = 0;
+    rolling_niblit_id = 1;
+    nm.niblits = [];
+    nm.pending_niblits = [];
+    nm.avatars = [];
+  };
 
 
   //setting up event listeners.
@@ -139,9 +203,21 @@ var GameAdmin = function(){
     sc.stop_browsing();
     enter_menu();
   });
-  document.getElementById('rematch_cancel').addEventListener('click', clean_up_match);
+  document.getElementById('rematch_cancel').addEventListener('click', function(){
+    sc.socket.emit('left_game',{});
+    clean_up_match();
+    enter_menu();
+  });
+  document.getElementById('rematch_confirm').addEventListener('click', function(){
+    clean_up_match();
+    hide_all();
+    waiting_for_opponent.style.display = 'block';
+    sc.socket.emit('lets_rematch',{});
+  });
   this.enter_menu = enter_menu;
   this.show_hosted_games = show_hosted_games;
+  this.start_match = start_match;
+  this.clean_up_match = clean_up_match;
 };
 
 
@@ -155,6 +231,12 @@ var Player = function(who){
   this.upgrade_points = 0;
   this.avatar = new Avatar(who);
 };
+
+// Player.prototype.reset = function(){
+//   this.score = 0;
+//   this.old_score = 0;
+//   this.upgrade_points
+// };
 
 Player.prototype.chomp = function(niblit){
   this.score += niblit.points;
@@ -316,6 +398,7 @@ var Graphics = function(){
   this.canvas = document.getElementById('game_canvas');
   this.context = this.canvas.getContext('2d');
   this.camera = {x: 0, y:0};
+  this.game_time = document.getElementById('game_time');
 };
 
 Graphics.prototype.draw = function(){
@@ -368,6 +451,8 @@ Graphics.prototype.draw = function(){
   ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
 
   //HUD
+  // game_time
+  this.game_time.innerHTML = "Time: "+game_minutes+":"+((game_seconds<10)?"0"+game_seconds:game_seconds)+":"+((game_centa_seconds<10)?"0"+game_centa_seconds:game_centa_seconds);
   //scores
   ctx.font = "20px sans-serif";
   ctx.fillStyle = '#333';
@@ -446,31 +531,18 @@ var ServerConnect = function(){
     this.socket.emit('join_game', {name: name});
   }
 
+  this.socket.on('left_game',function(data){
+    ga.clean_up_match();
+    ga.enter_menu();
+  });
+
   this.socket.on('game_start', function(data){
-    if (data.game_host){
-      player = new Player('nom');
-      opponent = new Player('mon');
-      host_interval = setInterval(function(){
-        nm.ready_niblit_batch();
-      }, 5000);
-    }else{
-      player = new Player('mon');
-      opponent = new Player('nom');
-    }
-    nm.avatars.push(player.avatar);
-    nm.avatars.push(opponent.avatar);
-    if (data.game_host){
-      nm.ready_niblit_batch();
-    }
-    spawn_interval = setInterval(function(){
-      nm.niblit_factory.make_niblit();
-    },100);
-    opponent_update_interval = setInterval(function(){
-      sc.socket.emit('game_update', {opponent_pos: player.avatar.position, niblits_eaten: niblits_eaten});
-      niblits_eaten = [];
-    },34);
-    setInterval(add_to_reverse_meter,600);
-    Game.paused = false;
+    is_host = data.game_host;
+    ga.start_match();
+  });
+
+  this.socket.on('do_rematch',function(data){
+    ga.start_match();
   });
 
   this.socket.on('game_update', function(data){
@@ -559,13 +631,18 @@ Game.paused = true;
 
 
 //TODO:
-  // get into game (server.js: START HERE)
  // get eat back, and animate eating
  // put hud elements in dom instead of canvas
- // add timer to game
- // add navigation back to game
- // add navigation back to menu from game
+ // **add navigation back to game**
  // add you win/lose
+
+ //
+
+ // disconnect cases:
+  // while waiting for someone to join
+  // while browsing
+  // mid game
+  // end game
 
 
 

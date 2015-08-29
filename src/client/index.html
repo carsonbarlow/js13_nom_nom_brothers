@@ -1,19 +1,19 @@
 <!doctype html>
 <html>
-  <head>
-    <title>js13k</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script type="text/javascript">
-    Game = {
-      config: {
-        canvas_id: 'game_canvas',
-        fps_counter_id: 'fps_counter',
-        fps: 60
-      }
+<head>
+  <title>js13k</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script type="text/javascript">
+  Game = {
+    config: {
+      canvas_id: 'game_canvas',
+      fps_counter_id: 'fps_counter',
+      fps: 60
     }
+  }
   </script>
-  </head>
-  <body>
+</head>
+<body>
   <div class="container">
     <div id="title">Game Title</div>
     <div id="host_game" class="btn purple">Host Game</div>
@@ -33,10 +33,12 @@
       <p id="no_games">No Games Hosted.  Please wait, or host your own.</p>
     </div>
     <div id="rematch">
+      Rematch?
       <div id="rematch_cancel" class="cancel btn orange">Cancel</div>
       <div id="rematch_confirm" class="confirm btn green">Confirm</div>
     </div>
     <div id="HUD">
+      <div id="game_time">Time: 2:00:00</div>
       <div id="score" class="wrap" style="float: left">
         <div id="Nom">
           <p>lv 3</p>
@@ -52,21 +54,21 @@
         <p>Opponent: 67</p>
       </div>
       <div class="clear">
-      <div id="upgrade_bar_back" class="green">
-        15/40
-        <div id="upgrade_bar_fill" class="green"></div>
+        <div id="upgrade_bar_back" class="green">
+          15/40
+          <div id="upgrade_bar_fill" class="green"></div>
+        </div>
+        <div id="reverse_bar_back" class="orange">
+          15/40
+          <div id="reverse_bar_fill" class="orange"></div>
+        </div>
       </div>
-      <div id="reverse_bar_back" class="orange">
-        15/40
-        <div id="reverse_bar_fill" class="orange"></div>
-      </div>
-    </div>
     </div>
     <canvas id="game_canvas" width="720" height="640"></canvas>
   </div>
-     <script src="/socket.io/socket.io.js"></script>
-     <script type="text/javascript" src="game.js"></script>
-    <!-- // <script type="text/javascript" src="cb_testing.js"></script> -->
-    <!-- // <script type="text/javascript" src="test.js"></script> -->
-  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="game.js"></script>
+  <!-- // <script type="text/javascript" src="cb_testing.js"></script> -->
+  <!-- // <script type="text/javascript" src="test.js"></script> -->
+</body>
 </html>
