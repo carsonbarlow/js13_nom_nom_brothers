@@ -27,12 +27,29 @@ var utils,
   DOMURL = window.URL || window.webkitURL || window,
   ART_COMMON = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">',
   ART = {
-    nomHead: ART_COMMON + '<g><circle fill="#32D95C" cx="74" cy="75" r="71"/></g><circle fill="#ECF230" cx="74" cy="50" r="22"/><circle cx="74" cy="49" r="10"/><ellipse cx="74" cy="108" rx="22" ry="22"/><path fill="#FFFFFF" d="M68.4 129.7l5.8-14.8l9.2 13.8C83.5 128 74 132 68 129.7z"/></svg>',
+    nomHead: ART_COMMON + '<g><circle fill="#32D95C" cx="74" cy="75" r="71"/></g><circle fill="#ECF230" cx="74" cy="50" r="22"/><circle cx="74" cy="49" r="10"/></svg>',
     monHead: ART_COMMON + '<g><circle fill="#FF5A35" cx="72" cy="75" r="67"/></g><circle fill="#ECF230" cx="38" cy="50" r="12"/><circle fill="#ECF230" cx="73" cy="47" r="13"/><circle fill="#ECF230" cx="108" cy="50" r="13"/><circle cx="38" cy="50" r="5"/><circle cx="73" cy="47" r="5"/><circle cx="108" cy="50" r="5"/></svg>',
     nomMouth: ART_COMMON + '<ellipse cx="74" cy="108" rx="22" ry="22"/><path fill="#FFFFFF" d="M68.4 129.7l5.8-14.8l9.2 13.8C83.5 128 74 132 68 129.7z"/></svg>',
     monMouth: ART_COMMON + '<ellipse cx="73" cy="106" rx="21" ry="21"/><path fill="#FFFFFF" d="M63.3 87.6l9.4 13.1l7.2-14.8C79.9 85 72 82 63 87.6z"/></svg>',
-    eat: '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 50 15" enable-background="new 0 0 50 15" xml:space="preserve"><path d="M49.3 8c0 13.4-10.5 2-23.8 2S0.9 21 0 8s10.8-2 24.2-2S49.3-5.4 49 8z"/></svg>'
-  };
+    eat: ART_COMMON + '<path d="M97.2 103.4c0 12.5-9.7 1.9-22.1 1.9s-22.9 10.6-22.9-1.9s10.1-1.9 22.5-1.9S97.2 90.9 97.2 103.4z"/></svg>'
+  },
+  NIBLIT_COLOR_PALET = ['','#0033CC','#431359','#FFBA41','#FF0000','#FFFF01'];
+
+//   .blue {
+//   background: #01FFDF;
+// }
+// .brown {
+//   background: #FFBA41;
+// }
+// .yellow {
+//   background: #FFFF01;
+// }
+// .red {
+//   background: #FF0000;
+// }
+// .purple {
+//   color: #431359;
+// }
 
 window.onload = function(){
   utils = new Utils();
@@ -149,7 +166,7 @@ var GameAdmin = function(){
     hide_all();
     hud.style.display = 'block'
     canvas.style.display = 'block';
-    game_minutes = 0;
+    game_minutes = 10;
     game_seconds = 5;
     game_centa_seconds = 0;
     timer_interval = setInterval(function(){
@@ -241,6 +258,7 @@ var Player = function(who){
 Player.prototype.chomp = function(niblit){
   this.score += niblit.points;
   this.upgrade_points += niblit.points;
+  if (this.avatar.chomps < 3){this.avatar.chomps++;}
 };
 
 Player.prototype.try_upgrade = function(){
@@ -281,27 +299,32 @@ function add_to_reverse_meter(){
 
 var Avatar = function(who){
 
+  this.BITE_TIME_MAX = 0.2;
+  this.bite_time = 0;
   this.img_body = document.createElement('IMG');
-  this.img_mouth = document.createElement('IMG');
+  this.img_open = document.createElement('IMG');
   this.img_eat = document.createElement('IMG');
   if (who === 'nom'){
     this.position = {x: 50, y: 50};
     this.color = 'red';
     this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
-    this.img_mouth.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_open.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
   }else{
     this.position = {x:150, y: 50};
     this.color = 'blue';
     this.img_body.src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
-    this.img_mouth.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_open.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
   }
   this.img_eat.src = DOMURL.createObjectURL(new Blob([ART.eat], {type: 'image/svg+xml;charset=utf-8'}));
+  this.img_mouth = this.img_open;
   this.radius = 25;
   this.speed = 150;
   this.level = 1;
   this.rank = 1;
   this.max_level = false;
   this.level_up = [0,20,30,40,50,60,70,80,90,100];
+  this.mouth_open = true;
+  this.chomps = 0;
 }
 
 Avatar.prototype.move = function(delta){
@@ -326,6 +349,24 @@ Avatar.prototype.do_upgrade = function(){
     this.rank++;
     this.radius += 5;
   }
+  if (this.level == 10){
+    this.max_level = true;
+  }
+}
+Avatar.prototype.animate = function(delta){
+  if (this.chomps){
+    this.bite_time -= delta;
+    if (this.bite_time < 0){
+      this.bite_time += this.BITE_TIME_MAX;
+      this.mouth_open = !this.mouth_open;
+      if (this.mouth_open){
+        this.img_mouth = this.img_open;
+        this.chomps--;
+      }else{
+        this.img_mouth = this.img_eat;
+      }
+    }
+  }
 }
 
 //============================================== Niblit & Manager ==========================================\\
@@ -336,6 +377,7 @@ var Niblit = function(config){
   this.size = config.size;
   this.points = config.points;
   this.n_id = rolling_niblit_id;
+  this.color = NIBLIT_COLOR_PALET[config.points];
   rolling_niblit_id++;
 };
 
@@ -399,7 +441,44 @@ var Graphics = function(){
   this.context = this.canvas.getContext('2d');
   this.camera = {x: 0, y:0};
   this.game_time = document.getElementById('game_time');
+  this.hud = {
+    score: document.getElementById('player_score'),
+    opponent: document.getElementById('opponent_score'),
+    player_lv: document.getElementById('player_lv'),
+    opponent_lv: document.getElementById('opponent_lv'),
+    upgrade_text: document.getElementById('upgrade_text'),
+    upgrade_bar_fill: document.getElementById('upgrade_bar_fill'),
+    reverse_bar_fill: document.getElementById('reverse_bar_fill')
+  }
 };
+
+// <div id="HUD">
+//       <div id="game_time">Time: 2:00:00</div>
+//       <div id="score" class="wrap" style="float: left">
+//         <div id="Nom">
+//           <p id="player_lv">lv 3</p>
+//         </div>
+//         <img class="small" src="nom.svg" />
+//         <p id="player_score">Score: 75</p>
+//       </div>
+//       <div id="opponent" class="wrap" style="float: right">
+//         <div id="Mon">
+//           <p id="opponent_lv">lv 2</p>
+//         </div>
+//         <img class="small" src="mon.svg" />
+//         <p id="opponent_score">Opponent: 67</p>
+//       </div>
+//       <div class="clear">
+//       <div id="upgrade_bar_back" class="green">
+//         <div id="upgrade_bar_fill" class="green"></div>
+//         15/40
+//       </div>
+//       <div id="reverse_bar_back" class="darkPink">
+//         <div id="reverse_bar_fill" class="darkPink"></div>
+//       </div>
+//     </div>
+//     <canvas id="game_canvas" width="720" height="640"></canvas>
+//   </div>
 
 Graphics.prototype.draw = function(){
   var ctx = this.context;
@@ -432,9 +511,9 @@ Graphics.prototype.draw = function(){
 
 
   for (i = 0; i < nm.niblits.length; i++){
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "blue";
-    ctx.fillStyle = "yellow";
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#BBBBBB";
+    ctx.fillStyle = nm.niblits[i].color;
     ctx.beginPath();
     ctx.arc(nm.niblits[i].x - this.camera.x, nm.niblits[i].y - this.camera.y, nm.niblits[i].size, 0, 2 * Math.PI, false);
     ctx.fill();
@@ -451,16 +530,28 @@ Graphics.prototype.draw = function(){
   ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
 
   //HUD
-  // game_time
   this.game_time.innerHTML = "Time: "+game_minutes+":"+((game_seconds<10)?"0"+game_seconds:game_seconds)+":"+((game_centa_seconds<10)?"0"+game_centa_seconds:game_centa_seconds);
-  //scores
-  ctx.font = "20px sans-serif";
-  ctx.fillStyle = '#333';
 
-  ctx.fillText('Score: '+player.score+'(lv'+player.avatar.level+')',50,25);
-  ctx.fillText('Opponent: '+opponent.score+'(lv'+opponent.avatar.level+')',500,25);
 
-  ctx.fillText('Upgrade: '+player.upgrade_points+'/'+player.avatar.level_up[player.avatar.level], 50, 50);
+  // move this stuff out of the draw update.  It is inefficent
+  this.hud.score.innerHTML = '' + player.score;
+  this.hud.opponent.innerHTML = '' + opponent.score;
+  this.hud.player_lv.innerHTML = 'lv ' + player.avatar.level;
+  this.hud.opponent_lv.innerHTML = 'lv '+ opponent.avatar.level;
+
+  if (!player.avatar.max_level){
+    this.hud.upgrade_text.innerHTML = '' + player.upgrade_points+'/'+player.avatar.level_up[player.avatar.level];
+  }else{
+    this.hud.upgrade_text.innerHTML = 'MAX';
+  }
+  
+
+
+
+  // ctx.fillText('Score: '+player.score+'(lv'+player.avatar.level+')',50,25);
+  // ctx.fillText('Opponent: '+opponent.score+'(lv'+opponent.avatar.level+')',500,25);
+
+  // ctx.fillText('Upgrade: '+player.upgrade_points+'/'+player.avatar.level_up[player.avatar.level], 50, 50);
   ctx.fillText('Reverse: '+reverse_meter+'/'+REVERSE_MAX, 50, 75);
   ctx.restore();
 };
@@ -506,7 +597,6 @@ var ServerConnect = function(){
   }
 
   this.register_game = function(){
-    console.log(game_name);
     this.socket.emit('register_game', {name: game_name});
   };
 
@@ -515,7 +605,6 @@ var ServerConnect = function(){
   };
 
   this.get_hosted_games = function(){
-    console.log('hey!');
     this.socket.emit('get_registered_games',{});
   };
 
@@ -572,6 +661,8 @@ Game.paused = true;
   Game.update = function(delta){
     if (!Game.paused){
       player.stop_moving || player.avatar.move(delta);
+      player.avatar.animate(delta);
+      opponent.avatar.animate(delta);
       
       // graphics.draw();
       // Game.update_player(Game.player, delta);
@@ -631,12 +722,14 @@ Game.paused = true;
 
 
 //TODO:
- // get eat back, and animate eating
- // put hud elements in dom instead of canvas
- // **add navigation back to game**
+ // get title screen to work
  // add you win/lose
 
- //
+ // stop shaking when avatar is on mouse
+ // spawn niblits further away from edge
+
+ // fix tab out bug
+ // get eyes to follow mouse
 
  // disconnect cases:
   // while waiting for someone to join
