@@ -20,11 +20,7 @@ body {
   background-color: black;
   border: 5px #32D95C solid;
 }
-.niblit {
-  border-radius: 50%;
-  width: 20px;
-  height: 20px; 
-}
+
 .pink {
   background: #FFBADD;
 }
@@ -35,7 +31,7 @@ body {
   background: #FFBA41;
 }
 .yellow {
-  background: #FFFF01;
+  color: #FFFF01;
 }
 .red {
   background: #FF0000;
@@ -57,19 +53,51 @@ body {
 .orange {
   background: #FF5A35;
 }
-.small {
-  width: 100px;
-  height: 100px;
+
+.title {
+  position: absolute;
+  top: 450px;
+  font-size: 32px;
+}
+.host {
+  left: 45%;
+}
+.game_name {
+ margin-left: 100px;
+}
+.waiting {
+  margin-left: 100px;
+  text-align: center;
 }
 .btn {
-  font-family: Arial;
-  color: #ffffff;
-  padding: 10px 20px 10px 20px;
-  text-decoration: none;
-  width: 130px;
-  display: inline-block;
-  font-size: 16px;
+  position: absolute;
+  top: 90px;
 }
+.shadow {
+    text-shadow: 8px 8px 0 rgba(255,0,180,0.5);
+}
+.confirm {
+  left: 50px;
+}
+.cancel {
+  left: 300px;
+}
+
+.text-line {
+    background-color: transparent;
+    color: #F23869;
+    outline: none;
+    outline-style: none;
+    outline-offset: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: solid #FFFF01 1px;
+    padding: 3px 10px;
+    font-size: 18px;
+}
+
+
 .wrap {
   height: 100px;
   display: table;
@@ -86,55 +114,62 @@ body {
   font-weight: 700;
   font-size: 18px;
 }
+
+.small {
+  width: 100px;
+  height: 100px;
+}
 .clear {
   clear: both;
 }
-.title {
-  position: absolute;
-  top: 500px;
-  font-size: 32px;
+ul {
+    list-style: none;
+    cursor: pointer;
+    margin-left: 250px;
 }
-.host {
-  left: 45%;
-  text-shadow: 8px 8px 0 rgba(255,0,180,0.5);
+
+.bar {
+  width: 330px;
+  height: 20px;
+  margin-bottom: 20px;
 }
-.game_name {
-  left: 40%;
+.upgrade {
+  float: left;
 }
-.waiting {
-  left: 30%;
+.reverse {
+  float: right;
 }
 .blink_me {
     -webkit-animation-name: blinker;
-    -webkit-animation-duration: .5s;
+    -webkit-animation-duration: 1.2s;
     -webkit-animation-timing-function: linear;
     -webkit-animation-iteration-count: infinite;
 
     -moz-animation-name: blinker;
-    -moz-animation-duration: .5s;
+    -moz-animation-duration: 1.2s;
     -moz-animation-timing-function: linear;
     -moz-animation-iteration-count: infinite;
 
     animation-name: blinker;
-    animation-duration: .5s;
+    animation-duration: 1.2s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
 
 @-moz-keyframes blinker {  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
+    15% { opacity: 1.0; }
+    50% { opacity: 0.2; }
     100% { opacity: 1.0; }
 }
 
 @-webkit-keyframes blinker {  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
+    15% { opacity: 1.0; }
+    50% { opacity: 0.2; }
     100% { opacity: 1.0; }
 }
 
 @keyframes blinker {  
-    0% { opacity: 1.0; }
-    50% { opacity: 0.0; }
+    15% { opacity: 1.0; }
+    50% { opacity: 0.2; }
     100% { opacity: 1.0; }
 }

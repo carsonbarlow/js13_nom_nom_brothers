@@ -15,30 +15,37 @@
 </head>
 <body>
   <div class="container">
+
     <div id="title" class="blink_me"><img src="title.svg" /></div>
-    <div class="title host">
-    <div id="host_game" class="green">HOST GAME</div>
-    <div id="join_game" class="green">JOIN GAME</div>
+
+    <div class="title host"> 
+    <div id="host_game" class="green shadow">HOST GAME</div>
+    <div id="join_game" class="green shadow">JOIN GAME</div>
   </div>
-    <div id="enter_game_name_overlay" class="title game_name">
-      Enter Game Name: <input id="input_game_name" type="text" name="game_name">
-      <div id="enter_game_name_overlay_cancel" class="cancel btn darkPink">Cancel</div>
-      <div id="enter_game_name_overlay_confirm" class="confirm btn green">Confirm</div>
+
+    <div id="enter_game_name_overlay" class="title yellow game_name">
+      Enter Game Name: <input class="text-line input" id="input_game_name" type="text" name="game_name">
+      <div id="enter_game_name_overlay_cancel" class="cancel green btn shadow">Cancel</div>
+      <div id="enter_game_name_overlay_confirm" class="confirm green btn shadow">Confirm</div>
     </div>
-    <div id="waiting_for_opponent" class="title waiting">
+
+    <div id="waiting_for_opponent" class="title waiting darkPink">
       Waiting For Opponent...
-      <div id="waiting_overlay_cancel" class="cancel btn darkPink">Cancel</div>
+      <div id="waiting_overlay_cancel" class="cancel btn green shadow">Cancel</div>
     </div>
-    <div id="games_to_join" class="title waiting">
-      <p id="no_games">No Games Hosted.  Please wait, or host your own.</p>
-      <div id="games_to_join_cancel" class="cancel btn darkPink">Cancel</div>
+
+    <div id="games_to_join" class="title waiting yellow">
+      <p id="no_games" style="font-size: 20px;">No Games Hosted.  Please wait, or host your own.</p>
+      <div id="games_to_join_cancel" class="cancel btn green shadow">Cancel</div>
       <ul id="list_of_games"></ul>
     </div>
-    <div id="rematch" class="title waiting">
-      Rematch?
-      <div id="rematch_cancel" class="cancel btn darkPink">Cancel</div>
-      <div id="rematch_confirm" class="confirm btn green">Confirm</div>
+
+    <div id="rematch" class="title waiting yellow">
+      <span style="margin-left: 165px;">Rematch?</span>
+      <div id="rematch_cancel" class="cancel btn green shadow">Cancel</div>
+      <div id="rematch_confirm" class="confirm btn green shadow">Confirm</div>
     </div>
+
     <div id="HUD">
       <div id="game_time">Time: 2:00:00</div>
       <div id="score" class="wrap" style="float: left">
@@ -56,14 +63,18 @@
         <p>Opponent: 67</p>
       </div>
       <div class="clear">
-      <div id="upgrade_bar_back" class="green">
-        15/40
-        <div id="upgrade_bar_fill" class="green"></div>
+        <div class="upgrade">
+      <div id="upgrade_bar_back" class="yellow">
+        UPGRADE
+        <div id="upgrade_bar_fill" class="blue bar"></div>
       </div>
+    </div>
+      <div class="reverse">
       <div id="reverse_bar_back" class="darkPink">
-        15/40
-        <div id="reverse_bar_fill" class="darkPink"></div>
+        REVERSE
+        <div id="reverse_bar_fill" class="red bar"></div>
       </div>
+    </div>
     </div>
     <canvas id="game_canvas" width="720" height="640"></canvas>
   </div>
