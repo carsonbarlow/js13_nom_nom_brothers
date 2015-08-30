@@ -16,6 +16,10 @@ body {
   margin-right: auto;
   width: 720px;
 }
+#title_canvas {
+  width: 720px;
+  height: 640px;
+}
 #game_canvas {
   background-color: black;
   border: 5px #32D95C solid;

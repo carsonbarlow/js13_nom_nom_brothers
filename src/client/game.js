@@ -31,7 +31,8 @@ var utils,
     monHead: ART_COMMON + '<g><circle fill="#FF5A35" cx="72" cy="75" r="67"/></g><circle fill="#ECF230" cx="38" cy="50" r="12"/><circle fill="#ECF230" cx="73" cy="47" r="13"/><circle fill="#ECF230" cx="108" cy="50" r="13"/><circle cx="38" cy="50" r="5"/><circle cx="73" cy="47" r="5"/><circle cx="108" cy="50" r="5"/></svg>',
     nomMouth: ART_COMMON + '<ellipse cx="74" cy="108" rx="22" ry="22"/><path fill="#FFFFFF" d="M68.4 129.7l5.8-14.8l9.2 13.8C83.5 128 74 132 68 129.7z"/></svg>',
     monMouth: ART_COMMON + '<ellipse cx="73" cy="106" rx="21" ry="21"/><path fill="#FFFFFF" d="M63.3 87.6l9.4 13.1l7.2-14.8C79.9 85 72 82 63 87.6z"/></svg>',
-    eat: ART_COMMON + '<path d="M97.2 103.4c0 12.5-9.7 1.9-22.1 1.9s-22.9 10.6-22.9-1.9s10.1-1.9 22.5-1.9S97.2 90.9 97.2 103.4z"/></svg>'
+    eat: ART_COMMON + '<path d="M97.2 103.4c0 12.5-9.7 1.9-22.1 1.9s-22.9 10.6-22.9-1.9s10.1-1.9 22.5-1.9S97.2 90.9 97.2 103.4z"/></svg>',
+    title_art: '<svg xmlns="http://www.w3.org/2000/svg" version="1" x="0" y="0" viewBox="0 0 720 640" enable-background="new 0 0 720 640" xml:space="preserve"><text style="text-shadow: 10px 10px 0 rgba(1,255,223, 0.6), 20px 20px 0 rgba(255,0,0, 0.6), 30px 30px 0 rgba(1,255,223, 0.6), 40px 40px 0 rgba(255,0,0, 0.6),; font-weight: bold;" transform="matrix(1 0 0 1 98.3608 217.1597)"><tspan x="0" y="0" fill="#ECF230" font-family="\'Verdana\'" font-size="99">NOM</tspan><tspan x="262" y="0" fill="#F23869" font-family="\'Verdana\'" font-size="99">MON</tspan><tspan x="-40" y="119" fill="#F23869" font-family="\'Verdana\'" font-size="99">BROT</tspan><tspan x="265" y="119" fill="#ECF230" font-family="\'Verdana\'" font-size="99">HERS</tspan></text></svg>'
   },
   NIBLIT_COLOR_PALET = ['','#0033CC','#431359','#FFBA41','#FF0000','#FFFF01'];
 
@@ -67,6 +68,7 @@ window.onload = function(){
 
 var GameAdmin = function(){
   var state = 'menu', //menu, waiting_for_player, games_to_join, in_play, paused, end_game
+    game_title = document.getElementById('title'),
     canvas = document.getElementById('game_canvas'),
     host_game = document.getElementById('host_game'),
     join_game = document.getElementById('join_game'),
@@ -91,6 +93,7 @@ var GameAdmin = function(){
   };
   function enter_menu(){
     hide_all();
+    game_title.style.display = 'block';
     host_game.style.display = 'block';
     join_game.style.display = 'block';
   };
@@ -136,6 +139,7 @@ var GameAdmin = function(){
   };
   function join_game(){};
   function start_match(){
+    game_title.style.display = 'none';
     if (is_host){
       player = new Player('nom');
       opponent = new Player('mon');
@@ -166,8 +170,8 @@ var GameAdmin = function(){
     hide_all();
     hud.style.display = 'block'
     canvas.style.display = 'block';
-    game_minutes = 10;
-    game_seconds = 5;
+    game_minutes = 0;
+    game_seconds = 15;
     game_centa_seconds = 0;
     timer_interval = setInterval(function(){
       game_centa_seconds--;
@@ -450,35 +454,32 @@ var Graphics = function(){
     upgrade_bar_fill: document.getElementById('upgrade_bar_fill'),
     reverse_bar_fill: document.getElementById('reverse_bar_fill')
   }
-};
+  // set up title screen.
+  var title_ctx = document.getElementById('title_canvas').getContext('2d');;
+  // title_ctx = title_ctx
+  title_ctx.clearRect(0,0,720,640);
+  var title_img = document.createElement('IMG');
+  title_img.src = DOMURL.createObjectURL(new Blob([ART.title_art], {type: 'image/svg+xml;charset=utf-8'}));
+  var nom_img = document.createElement('IMG');
+    nom_img.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+  var mon_img = document.createElement('IMG');
+    mon_img.src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
+  var nom_mouth = document.createElement('IMG');
+    nom_mouth.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
+  var mon_mouth = document.createElement('IMG');
+    mon_mouth.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
 
-// <div id="HUD">
-//       <div id="game_time">Time: 2:00:00</div>
-//       <div id="score" class="wrap" style="float: left">
-//         <div id="Nom">
-//           <p id="player_lv">lv 3</p>
-//         </div>
-//         <img class="small" src="nom.svg" />
-//         <p id="player_score">Score: 75</p>
-//       </div>
-//       <div id="opponent" class="wrap" style="float: right">
-//         <div id="Mon">
-//           <p id="opponent_lv">lv 2</p>
-//         </div>
-//         <img class="small" src="mon.svg" />
-//         <p id="opponent_score">Opponent: 67</p>
-//       </div>
-//       <div class="clear">
-//       <div id="upgrade_bar_back" class="green">
-//         <div id="upgrade_bar_fill" class="green"></div>
-//         15/40
-//       </div>
-//       <div id="reverse_bar_back" class="darkPink">
-//         <div id="reverse_bar_fill" class="darkPink"></div>
-//       </div>
-//     </div>
-//     <canvas id="game_canvas" width="720" height="640"></canvas>
-//   </div>
+
+
+  setTimeout(function(){
+    title_ctx.drawImage(title_img, 0, 0, 720, 640);
+    title_ctx.drawImage(nom_img, 184,138,85,85);
+    title_ctx.drawImage(nom_mouth, 184,138,85,85);
+    title_ctx.drawImage(mon_img, 456,138,85,85);
+    title_ctx.drawImage(mon_mouth, 456,138,85,85);
+  },100);
+
+};
 
 Graphics.prototype.draw = function(){
   var ctx = this.context;
