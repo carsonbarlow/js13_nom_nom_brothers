@@ -44,7 +44,8 @@ body {
   color: #431359;
 }
 .green {
-  color: rgba(50,217,92,0.5)
+  color: rgba(50,217,92,0.5);
+  margin-bottom: 20px;
 }
 .green:hover {
   color: #34DC5A;
