@@ -16,17 +16,17 @@
 <body>
   <div class="container">
 
-    <div id="title" class="blink_me" width="720" height="640">
+    <div id="title" width="720" height="640">
       <canvas id="title_canvas" width="720" height="640"></canvas>
     </div>
 
-    <div class="title host"> 
+    <div class="title host blink_me"> 
     <div id="host_game" class="green shadow">HOST GAME</div>
     <div id="join_game" class="green shadow">JOIN GAME</div>
   </div>
 
-    <div id="enter_game_name_overlay" class="title yellow game_name">
-      Enter Game Name: <input class="text-line input" id="input_game_name" type="text" name="game_name">
+    <div id="enter_game_name_overlay" class="title yellow game_name frame">
+      ENTER GAME NAME: <input class="text-line input" id="input_game_name" type="text" name="game_name">
       <div id="enter_game_name_overlay_cancel" class="cancel green btn shadow">Cancel</div>
       <div id="enter_game_name_overlay_confirm" class="confirm green btn shadow">Confirm</div>
     </div>
@@ -36,7 +36,7 @@
       <div id="waiting_overlay_cancel" class="cancel btn green shadow">Cancel</div>
     </div>
 
-    <div id="games_to_join" class="title waiting yellow">
+    <div id="games_to_join" class="title waiting frame">
       <p id="no_games" style="font-size: 20px;">No Games Hosted.  Please wait, or host your own.</p>
       <div id="games_to_join_cancel" class="cancel btn green shadow">Cancel</div>
       <ul id="list_of_games"></ul>

@@ -64,10 +64,12 @@ body {
   font-size: 32px;
 }
 .host {
-  left: 45%;
+  margin-left: 245px;
+  font-size: 38px !important;
 }
 .game_name {
- margin-left: 100px;
+  margin-top: 20px;
+ margin-left: 90px;
 }
 .waiting {
   margin-left: 100px;
@@ -75,16 +77,16 @@ body {
 }
 .btn {
   position: absolute;
-  top: 90px;
+  top: 110px;
 }
 .shadow {
     text-shadow: 8px 8px 0 rgba(255,0,180,0.5);
 }
 .confirm {
-  left: 50px;
+  left: 110px;
 }
 .cancel {
-  left: 300px;
+  left: 330px;
 }
 
 .text-line {
@@ -145,17 +147,17 @@ ul {
 }
 .blink_me {
     -webkit-animation-name: blinker;
-    -webkit-animation-duration: 1.2s;
+    -webkit-animation-duration: 1.5s;
     -webkit-animation-timing-function: linear;
     -webkit-animation-iteration-count: infinite;
 
     -moz-animation-name: blinker;
-    -moz-animation-duration: 1.2s;
+    -moz-animation-duration: 1.5s;
     -moz-animation-timing-function: linear;
     -moz-animation-iteration-count: infinite;
 
     animation-name: blinker;
-    animation-duration: 1.2s;
+    animation-duration: 1.5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
@@ -176,4 +178,31 @@ ul {
     15% { opacity: 1.0; }
     50% { opacity: 0.2; }
     100% { opacity: 1.0; }
+}
+
+.frame{
+  color: #431359;
+   -webkit-animation: changes 5s infinite;
+   -webkit-box-sizing:border-box;
+  
+   -moz-animation: changes 5s forwords infinite;
+   -moz-box-sizing:border-box;
+}
+
+
+@-webkit-keyframes changes {
+  10%,80% {color: #431359;}
+  20% {color: #32D95C;}
+  40% {color: #F23869;}
+  60% {color: #FF5A35;}
+  80% {color: #ECF230;}
+  
+}
+
+@-moz-keyframes changes {
+  10%,90% {color: #431359;}
+  20% {color: #32D95C;}
+  40% {color: #FA6D13;}
+  60% {color: #FF5A35;}
+  80% {color: #ECF230;}
 }
