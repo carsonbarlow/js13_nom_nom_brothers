@@ -22,7 +22,6 @@ body {
 }
 #game_canvas {
   background-color: black;
-  border: 5px #32D95C solid;
 }
 
 .pink {
@@ -122,8 +121,8 @@ body {
 }
 
 .small {
-  width: 30px;
-  height: 30px;
+  width: 80px;
+  height: 80px;
 }
 .clear {
   clear: both;
@@ -206,3 +205,30 @@ ul {
   60% {color: #FF5A35;}
   80% {color: #ECF230;}
 }
+.game_border{
+  border: 2px solid #431359;
+   -webkit-animation: cycle 20s infinite;
+   -webkit-box-sizing:border-box;
+  
+   -moz-animation: cycle 20s forwords infinite;
+   -moz-box-sizing:border-box;
+}
+
+
+@-webkit-keyframes cycle {
+  10%,80% {border: 2px solid #431359;}
+  20% {border: 2px solid #32D95C;}
+  40% {border: 2px solid #F23869;}
+  60% {border: 2px solid #FF5A35;}
+  80% {border: 2px solid #ECF230;}
+  
+}
+
+@-moz-keyframes cycle {
+  10%,90% {border: 2px solid #431359;}
+  20% {border: 2px solid #32D95C;}
+  40% {border: 2px solid #FA6D13;}
+  60% {border: 2px solid #FF5A35;}
+  80% {border: 2px solid #ECF230;}
+}
+
