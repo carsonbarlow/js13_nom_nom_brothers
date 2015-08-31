@@ -298,16 +298,18 @@ function add_to_reverse_meter(){
 //============================================== Avatar ==========================================\\
 
 var Avatar = function(who){
-
+  this.who = who;
   this.BITE_TIME_MAX = 0.2;
   this.bite_time = 0;
   this.img_body = document.createElement('IMG');
   this.img_open = document.createElement('IMG');
   this.img_eat = document.createElement('IMG');
+  this.eye_x = 0;
+  this.eye_y = 0;
   if (who === 'nom'){
     this.position = {x: 50, y: 50};
     this.color = 'red';
-    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead.replace('<circle cx="74" cy="49" r="10"/>','')], {type: 'image/svg+xml;charset=utf-8'}));
     this.img_open.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
   }else{
     this.position = {x:150, y: 50};
@@ -345,6 +347,12 @@ Avatar.prototype.move = function(delta){
         player.chomp(n);
       }
     }
+  }
+  if (this.who == 'nom'){
+    this.eye_x = this.position.x;
+    this.eye_y = this.position.y - (this.radius*0.3);
+  }else{
+
   }
 }
 Avatar.prototype.do_upgrade = function(){
@@ -535,6 +543,14 @@ Graphics.prototype.draw = function(){
   ctx.drawImage(player.avatar.img_body, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
   ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
 
+  if (player.avatar.who == 'nom'){
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(player.avatar.eye_x - this.camera.x, player.avatar.eye_y - this.camera.y, 3, 0, 2 * Math.PI, false);
+    ctx.fill();
+  }
+
+
   //HUD
   this.game_time.innerHTML = "Time: "+game_minutes+":"+((game_seconds<10)?"0"+game_seconds:game_seconds)+":"+((game_centa_seconds<10)?"0"+game_centa_seconds:game_centa_seconds);
 
@@ -667,14 +683,6 @@ Game.paused = true;
       player.stop_moving || player.avatar.move(delta);
       player.avatar.animate(delta);
       opponent.avatar.animate(delta);
-      
-      // graphics.draw();
-      // Game.update_player(Game.player, delta);
-      // if (!Game.player.isDead){
-      //   Game.update_projectiles(delta);
-      //   Game.update_enemies(delta);
-      //   Game.update_battle_master(Game.bm,delta);
-      // }
     }
   };
 
