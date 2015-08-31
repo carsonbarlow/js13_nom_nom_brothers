@@ -155,7 +155,7 @@ var GameAdmin = function(){
       niblits_eaten = [];
     },34);
     reverse_meter_interval = setInterval(add_to_reverse_meter,600);
-
+    player.stop_moving = false;
     Game.paused = false;
 
 
@@ -332,6 +332,10 @@ Avatar.prototype.move = function(delta){
     var move_array = utils.normalize((player.avatar.position.x - graphics.camera.x), player.avatar.position.y - graphics.camera.y, input.mouse.x, input.mouse.y);
     player.avatar.position.x += move_array[0]*player.avatar.speed*delta;
     player.avatar.position.y += move_array[1]*player.avatar.speed*delta;
+    if (player.avatar.position.x < player.avatar.radius){player.avatar.position.x = player.avatar.radius;}
+    else if(player.avatar.position.x > ARENA_WIDTH - player.avatar.radius){player.avatar.position.x = ARENA_WIDTH - player.avatar.radius;}
+    if (player.avatar.position.y < player.avatar.radius){player.avatar.position.y = player.avatar.radius;}
+    else if(player.avatar.position.y > ARENA_HEIGHT - player.avatar.radius){player.avatar.position.y = ARENA_HEIGHT - player.avatar.radius;}
     //collision detection
     for (var i = 0; i < nm.niblits.length; i++){
       if (nm.niblits[i].points <= player.avatar.rank && utils.proximity(player.avatar.position.x, player.avatar.position.y , nm.niblits[i].x, nm.niblits[i].y) < player.avatar.radius + nm.niblits[i].size){
@@ -403,8 +407,8 @@ NiblitManager.prototype.ready_niblit_batch = function(){
   for (var i = 0; i < 20; i++){
     if (this.niblits.length + i >= MAX_NIBLITS){break;}
     rank = Math.ceil(Math.random()*max);
-    x = parseInt(Math.random()*ARENA_WIDTH);
-    y = parseInt(Math.random()*ARENA_HEIGHT);
+    x = parseInt((Math.random()*(ARENA_WIDTH-50))+25);
+    y = parseInt((Math.random()*(ARENA_HEIGHT-50))+25);
     niblit_batch.push({rank: rank, x: x, y: y});
   }
   sc.socket.emit('game_update_both', {niblit_batch: niblit_batch});
@@ -506,7 +510,7 @@ Graphics.prototype.draw = function(){
 
   //draw border
   ctx.lineWidth = 15;
-  ctx.strokeStyle = '#F23869';
+  ctx.strokeStyle = '#888888';
   ctx.beginPath();
   ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
   ctx.stroke();
@@ -572,12 +576,6 @@ Input.prototype.init = function(){
   canvas.addEventListener('mousemove',function(event){
     mouse.x = event.x - canvas.offsetLeft;
     mouse.y = event.y - canvas.offsetTop;
-  });
-  canvas.addEventListener('mouseleave',function(event){
-    player.stop_moving = true;
-  });
-  canvas.addEventListener('mouseenter',function(event){
-    player.stop_moving = false;
   });
   window.addEventListener('keydown', function(event){
     if (event.keyIdentifier == 'U+0055'){ // "u" (attempt upgrade)
@@ -729,9 +727,6 @@ Game.paused = true;
 
 //TODO:
 
- // stop shaking when avatar is on mouse
- // prevent avatar from leaving screen
- // spawn niblits further away from edge
  // put mouths on nom and mon icons
 
  // fix tab out bug
