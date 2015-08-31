@@ -328,16 +328,18 @@ var Avatar = function(who){
 }
 
 Avatar.prototype.move = function(delta){
-  var move_array = utils.normalize((player.avatar.position.x - graphics.camera.x), player.avatar.position.y - graphics.camera.y, input.mouse.x, input.mouse.y);
-  player.avatar.position.x += move_array[0]*player.avatar.speed*delta;
-  player.avatar.position.y += move_array[1]*player.avatar.speed*delta;
-  //collision detection
-  for (var i = 0; i < nm.niblits.length; i++){
-    if (nm.niblits[i].points <= player.avatar.rank && utils.proximity(player.avatar.position, nm.niblits[i]) < player.avatar.radius + nm.niblits[i].size){
-      var n = nm.niblits.splice(i,1)[0];
-      i--;
-      niblits_eaten.push(n.n_id);
-      player.chomp(n);
+  if (utils.proximity(player.avatar.position.x - graphics.camera.x, player.avatar.position.y - graphics.camera.y, input.mouse.x, input.mouse.y) > player.avatar.radius){
+    var move_array = utils.normalize((player.avatar.position.x - graphics.camera.x), player.avatar.position.y - graphics.camera.y, input.mouse.x, input.mouse.y);
+    player.avatar.position.x += move_array[0]*player.avatar.speed*delta;
+    player.avatar.position.y += move_array[1]*player.avatar.speed*delta;
+    //collision detection
+    for (var i = 0; i < nm.niblits.length; i++){
+      if (nm.niblits[i].points <= player.avatar.rank && utils.proximity(player.avatar.position.x, player.avatar.position.y , nm.niblits[i].x, nm.niblits[i].y) < player.avatar.radius + nm.niblits[i].size){
+        var n = nm.niblits.splice(i,1)[0];
+        i--;
+        niblits_eaten.push(n.n_id);
+        player.chomp(n);
+      }
     }
   }
 }
@@ -428,9 +430,9 @@ Utils.prototype.normalize = function(from_x, from_y, to_x, to_y){
   hyp = Math.sqrt(hyp);
   return [(x_dif/hyp),(y_dif/hyp)];
 };
-Utils.prototype.proximity = function(obj_1,obj_2){
-  var x_dif = obj_2.x - obj_1.x;
-  var y_dif = obj_2.y - obj_1.y;
+Utils.prototype.proximity = function(obj_1_x, obj_1_y, obj_2_x, obj_2_y){
+  var x_dif = obj_2_x - obj_1_x;
+  var y_dif = obj_2_y - obj_1_y;
   return Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));
 };
 
@@ -727,10 +729,10 @@ Game.paused = true;
 
 //TODO:
 
- // put mouths on nom and mon icons
  // stop shaking when avatar is on mouse
  // prevent avatar from leaving screen
  // spawn niblits further away from edge
+ // put mouths on nom and mon icons
 
  // fix tab out bug
  // get eyes to follow mouse
