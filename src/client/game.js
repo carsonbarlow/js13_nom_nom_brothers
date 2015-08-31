@@ -7,6 +7,8 @@ var utils,
   input,
   player,
   opponent,
+  nom_icon_show,
+  mon_icon_show,
   game_name,
   game_minutes,
   game_seconds,
@@ -35,22 +37,6 @@ var utils,
     title_art: '<svg xmlns="http://www.w3.org/2000/svg" version="1" x="0" y="0" viewBox="0 0 720 640" enable-background="new 0 0 720 640" xml:space="preserve"><text style="text-shadow: 10px 10px 0 rgba(1,255,223, 0.6), 20px 20px 0 rgba(255,0,0, 0.6), 30px 30px 0 rgba(1,255,223, 0.6), 40px 40px 0 rgba(255,0,0, 0.6),; font-weight: bold;" transform="matrix(1 0 0 1 98.3608 217.1597)"><tspan x="0" y="0" fill="#ECF230" font-family="\'Verdana\'" font-size="99">NOM</tspan><tspan x="262" y="0" fill="#F23869" font-family="\'Verdana\'" font-size="99">MON</tspan><tspan x="-40" y="119" fill="#F23869" font-family="\'Verdana\'" font-size="99">BROT</tspan><tspan x="265" y="119" fill="#ECF230" font-family="\'Verdana\'" font-size="99">HERS</tspan></text></svg>'
   },
   NIBLIT_COLOR_PALET = ['','#0033CC','#431359','#FFBA41','#FF0000','#FFFF01'];
-
-//   .blue {
-//   background: #01FFDF;
-// }
-// .brown {
-//   background: #FFBA41;
-// }
-// .yellow {
-//   background: #FFFF01;
-// }
-// .red {
-//   background: #FF0000;
-// }
-// .purple {
-//   color: #431359;
-// }
 
 window.onload = function(){
   utils = new Utils();
@@ -141,15 +127,21 @@ var GameAdmin = function(){
   function start_match(){
     game_title.style.display = 'none';
     if (is_host){
+      nom_icon_show = !(mon_icon_show = false);
       player = new Player('nom');
       opponent = new Player('mon');
       host_interval = setInterval(function(){
         nm.ready_niblit_batch();
       }, 5000);
     }else{
+      nom_icon_show = !(mon_icon_show = true);
       player = new Player('mon');
       opponent = new Player('nom');
     }
+    document.getElementById('player_nom').style.display = (nom_icon_show)?"block":"none";
+    document.getElementById('player_mon').style.display = (mon_icon_show)?"block":"none";
+    document.getElementById('opponent_nom').style.display = (nom_icon_show)?"none":"block";
+    document.getElementById('opponent_mon').style.display = (mon_icon_show)?"none":"block";
     nm.avatars.push(player.avatar);
     nm.avatars.push(opponent.avatar);
     if (is_host){
@@ -170,8 +162,8 @@ var GameAdmin = function(){
     hide_all();
     hud.style.display = 'block'
     canvas.style.display = 'block';
-    game_minutes = 0;
-    game_seconds = 15;
+    game_minutes = 3;
+    game_seconds = 0;
     game_centa_seconds = 0;
     timer_interval = setInterval(function(){
       game_centa_seconds--;
@@ -198,6 +190,11 @@ var GameAdmin = function(){
     clearInterval(spawn_interval);
     clearInterval(reverse_meter_interval);
     niblits_eaten = [];
+    if (player.score < opponent.score){
+
+    }
+    var results_output = document.getElementById('game_results');
+    results_output.innerHTML = "You "+ ((player.score < opponent.score)? "Lose":"Win") + "!<br>Score: "+player.score+"<br>Opponent: "+opponent.score+"<br><br>Rematch?";
     hide_all();
     rematch.style.display = 'block';
   };
@@ -253,12 +250,6 @@ var Player = function(who){
   this.avatar = new Avatar(who);
 };
 
-// Player.prototype.reset = function(){
-//   this.score = 0;
-//   this.old_score = 0;
-//   this.upgrade_points
-// };
-
 Player.prototype.chomp = function(niblit){
   this.score += niblit.points;
   this.upgrade_points += niblit.points;
@@ -284,6 +275,11 @@ function reverse_avatars(){
     var a = player.avatar;
     player.avatar = opponent.avatar;
     opponent.avatar = a;
+    nom_icon_show = !(mon_icon_show = nom_icon_show);
+    document.getElementById('player_nom').style.display = (nom_icon_show)?"block":"none";
+    document.getElementById('player_mon').style.display = (mon_icon_show)?"block":"none";
+    document.getElementById('opponent_nom').style.display = (nom_icon_show)?"none":"block";
+    document.getElementById('opponent_mon').style.display = (mon_icon_show)?"none":"block";
   },500);
   setTimeout(function(){
     Game.paused = false;
@@ -468,7 +464,10 @@ var Graphics = function(){
     nom_mouth.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
   var mon_mouth = document.createElement('IMG');
     mon_mouth.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
-
+  document.getElementById('player_nom').src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('player_mon').src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('opponent_nom').src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('opponent_mon').src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
 
 
   setTimeout(function(){
@@ -583,6 +582,10 @@ Input.prototype.init = function(){
       player.try_upgrade();
     }else if (event.keyIdentifier == 'U+0052'){ // "r" (attempt reverse)
       player.try_reverse();
+    }else if (event.keyIdentifier == 'U+0051'){ // "q" (force quit [for debugging)]
+      game_name = 0;
+      game_minutes = 0;
+      game_seconds = 0;
     }
   });
 };
@@ -723,10 +726,10 @@ Game.paused = true;
 
 
 //TODO:
- // get title screen to work
- // add you win/lose
 
+ // put mouths on nom and mon icons
  // stop shaking when avatar is on mouse
+ // prevent avatar from leaving screen
  // spawn niblits further away from edge
 
  // fix tab out bug
@@ -738,6 +741,7 @@ Game.paused = true;
   // mid game
   // end game
 
-
+  // foreseeable tweaks:
+    // you win/lose
 
 

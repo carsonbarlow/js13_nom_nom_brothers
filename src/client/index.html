@@ -43,6 +43,7 @@
     </div>
 
     <div id="rematch" class="title waiting yellow">
+      <div id="game_results">You Won!<br>Score: 1548<br>Opponent: 1272</div>
       <span style="margin-left: 165px;">Rematch?</span>
       <div id="rematch_cancel" class="cancel btn green shadow">Cancel</div>
       <div id="rematch_confirm" class="confirm btn green shadow">Confirm</div>
@@ -51,17 +52,15 @@
     <div id="HUD">
       <div id="game_time">Time: 2:00:00</div>
       <div id="score" class="wrap" style="float: left">
-        <div id="Nom">
-          <p id="player_lv">lv 3</p>
-        </div>
-        <img class="small" src="nom.svg" />
+        <p id="player_lv">lv 3</p>
+        <img id="player_nom" class="small" />
+        <img id="player_mon" class="small" />
         <p id="player_score">Score: 75</p>
       </div>
       <div id="opponent" class="wrap" style="float: right">
-        <div id="Mon">
-          <p id="opponent_lv">lv 2</p>
-        </div>
-        <img class="small" src="mon.svg" />
+        <p id="opponent_lv">lv 2</p>
+        <img id="opponent_nom" class="small" />
+        <img id="opponent_mon" class="small" />
         <p id="opponent_score">Opponent: 67</p>
       </div>
       <div class="clear">
