@@ -463,7 +463,7 @@ var Graphics = function(){
     upgrade_text: document.getElementById('upgrade_text'),
     upgrade_bar_fill: document.getElementById('upgrade_bar_fill'),
     reverse_bar_fill: document.getElementById('reverse_bar_fill')
-  }
+  };
   // set up title screen.
   var title_ctx = document.getElementById('title_canvas').getContext('2d');;
   // title_ctx = title_ctx
@@ -508,20 +508,20 @@ Graphics.prototype.draw = function(){
 
   ctx.save();
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.0)";
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
-  for (var i = 0; i < 64; i++){
-    ctx.beginPath();
-    ctx.arc(((i%8)*150)+75-this.camera.x,(parseInt(i/8)*150)+75-this.camera.y, 10, 0, 2 * Math.PI, false);
-    ctx.stroke();
-  }
+  // ctx.fillStyle = "rgba(255, 255, 255, 0.0)";
+  // ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
+  // for (var i = 0; i < 64; i++){
+  //   ctx.beginPath();
+  //   ctx.arc(((i%8)*150)+75-this.camera.x,(parseInt(i/8)*150)+75-this.camera.y, 10, 0, 2 * Math.PI, false);
+  //   ctx.stroke();
+  // }
 
   //draw border
-  ctx.lineWidth = 15;
-  ctx.strokeStyle = '#888888';
-  ctx.beginPath();
-  ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
-  ctx.stroke();
+  // ctx.lineWidth = 15;
+  // ctx.strokeStyle = '#888888';
+  // ctx.beginPath();
+  // ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
+  // ctx.stroke();
 
 
   for (i = 0; i < nm.niblits.length; i++){
