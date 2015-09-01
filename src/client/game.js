@@ -4,6 +4,7 @@ var utils,
   nm,
   ga,
   graphics,
+  sm,
   input,
   player,
   opponent,
@@ -37,10 +38,14 @@ var utils,
     title_art: '<svg xmlns="http://www.w3.org/2000/svg" version="1" x="0" y="0" viewBox="0 0 720 640" enable-background="new 0 0 720 640" xml:space="preserve"><text style="text-shadow: 10px 10px 0 rgba(1,255,223, 0.6), 20px 20px 0 rgba(255,0,0, 0.6), 30px 30px 0 rgba(1,255,223, 0.6), 40px 40px 0 rgba(255,0,0, 0.6),; font-weight: bold;" transform="matrix(1 0 0 1 98.3608 217.1597)"><tspan x="0" y="0" fill="#ECF230" font-family="\'Verdana\'" font-size="99">NOM</tspan><tspan x="262" y="0" fill="#F23869" font-family="\'Verdana\'" font-size="99">MON</tspan><tspan x="-40" y="119" fill="#F23869" font-family="\'Verdana\'" font-size="99">BROT</tspan><tspan x="265" y="119" fill="#ECF230" font-family="\'Verdana\'" font-size="99">HERS</tspan></text></svg>'
   },
   NIBLIT_COLOR_PALET = ['','#0033CC','#431359','#FFBA41','#FF0000','#FFFF01'];
+  ART.nom = ART.nomHead.replace('</svg>', ART.nomMouth.replace(ART_COMMON, ''));
+  ART.mon = ART.monHead.replace('</svg>', ART.monMouth.replace(ART_COMMON, ''));
+
 
 window.onload = function(){
   utils = new Utils();
   graphics = new Graphics();
+  sm = new SoundManager();
   input = new Input();
   sc = new ServerConnect();
   nm = new NiblitManager();
@@ -68,6 +73,7 @@ var GameAdmin = function(){
     timer_interval;
   
   function hide_all(){
+
     hud.style.display = 'none';
     canvas.style.display = 'none';
     host_game.style.display = 'none';
@@ -260,12 +266,14 @@ Player.prototype.try_upgrade = function(){
   if (this.avatar.max_level || this.upgrade_points < this.avatar.level_up[this.avatar.level]){return;}
   this.upgrade_points -= this.avatar.level_up[this.avatar.level];
   this.avatar.do_upgrade();
+  sm.play('Upgrade1');
   sc.socket.emit('game_update',{upgrade:true});
 };
 
 Player.prototype.try_reverse = function(){
   if (reverse_meter < REVERSE_MAX){return;}
   reverse_meter = 0;
+  sm.play('Reverse1');
   sc.socket.emit('game_update_both',{reverse: true});
 };
 
@@ -309,7 +317,7 @@ var Avatar = function(who){
   if (who === 'nom'){
     this.position = {x: 50, y: 50};
     this.color = 'red';
-    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead.replace('<circle cx="74" cy="49" r="10"/>','')], {type: 'image/svg+xml;charset=utf-8'}));
+    this.img_body.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
     this.img_open.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
   }else{
     this.position = {x:150, y: 50};
@@ -367,7 +375,7 @@ Avatar.prototype.do_upgrade = function(){
     this.max_level = true;
   }
 }
-Avatar.prototype.animate = function(delta){
+Avatar.prototype.animate = function(delta, is_player){
   if (this.chomps){
     this.bite_time -= delta;
     if (this.bite_time < 0){
@@ -377,6 +385,7 @@ Avatar.prototype.animate = function(delta){
         this.img_mouth = this.img_open;
         this.chomps--;
       }else{
+        if (is_player){sm.play('Eat2');}
         this.img_mouth = this.img_eat;
       }
     }
@@ -471,25 +480,19 @@ var Graphics = function(){
   var title_img = document.createElement('IMG');
   title_img.src = DOMURL.createObjectURL(new Blob([ART.title_art], {type: 'image/svg+xml;charset=utf-8'}));
   var nom_img = document.createElement('IMG');
-    nom_img.src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
+    nom_img.src = DOMURL.createObjectURL(new Blob([ART.nom], {type: 'image/svg+xml;charset=utf-8'}));
   var mon_img = document.createElement('IMG');
-    mon_img.src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
-  var nom_mouth = document.createElement('IMG');
-    nom_mouth.src = DOMURL.createObjectURL(new Blob([ART.nomMouth], {type: 'image/svg+xml;charset=utf-8'}));
-  var mon_mouth = document.createElement('IMG');
-    mon_mouth.src = DOMURL.createObjectURL(new Blob([ART.monMouth], {type: 'image/svg+xml;charset=utf-8'}));
-  document.getElementById('player_nom').src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
-  document.getElementById('player_mon').src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
-  document.getElementById('opponent_nom').src = DOMURL.createObjectURL(new Blob([ART.nomHead], {type: 'image/svg+xml;charset=utf-8'}));
-  document.getElementById('opponent_mon').src = DOMURL.createObjectURL(new Blob([ART.monHead], {type: 'image/svg+xml;charset=utf-8'}));
+    mon_img.src = DOMURL.createObjectURL(new Blob([ART.mon], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('player_nom').src = DOMURL.createObjectURL(new Blob([ART.nom], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('player_mon').src = DOMURL.createObjectURL(new Blob([ART.mon], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('opponent_nom').src = DOMURL.createObjectURL(new Blob([ART.nom], {type: 'image/svg+xml;charset=utf-8'}));
+  document.getElementById('opponent_mon').src = DOMURL.createObjectURL(new Blob([ART.mon], {type: 'image/svg+xml;charset=utf-8'}));
 
 
   setTimeout(function(){
     title_ctx.drawImage(title_img, 0, 0, 720, 640);
     title_ctx.drawImage(nom_img, 184,138,85,85);
-    title_ctx.drawImage(nom_mouth, 184,138,85,85);
     title_ctx.drawImage(mon_img, 456,138,85,85);
-    title_ctx.drawImage(mon_mouth, 456,138,85,85);
   },100);
 
 };
@@ -508,22 +511,7 @@ Graphics.prototype.draw = function(){
 
   ctx.save();
 
-  // ctx.fillStyle = "rgba(255, 255, 255, 0.0)";
-  // ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
-  // for (var i = 0; i < 64; i++){
-  //   ctx.beginPath();
-  //   ctx.arc(((i%8)*150)+75-this.camera.x,(parseInt(i/8)*150)+75-this.camera.y, 10, 0, 2 * Math.PI, false);
-  //   ctx.stroke();
-  // }
-
-  //draw border
-  // ctx.lineWidth = 15;
-  // ctx.strokeStyle = '#888888';
-  // ctx.beginPath();
-  // ctx.rect(0-this.camera.x,0-this.camera.y,ARENA_WIDTH,ARENA_HEIGHT);
-  // ctx.stroke();
-
-
+  // niblits!!
   for (i = 0; i < nm.niblits.length; i++){
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#BBBBBB";
@@ -542,14 +530,6 @@ Graphics.prototype.draw = function(){
   //draw playerA
   ctx.drawImage(player.avatar.img_body, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
   ctx.drawImage(player.avatar.img_mouth, player.avatar.position.x - this.camera.x - player.avatar.radius, player.avatar.position.y - this.camera.y - player.avatar.radius, player.avatar.radius*2, player.avatar.radius*2);
-
-  if (player.avatar.who == 'nom'){
-    ctx.fillStyle = "#000000";
-    ctx.beginPath();
-    ctx.arc(player.avatar.eye_x - this.camera.x, player.avatar.eye_y - this.camera.y, 3, 0, 2 * Math.PI, false);
-    ctx.fill();
-  }
-
 
   //HUD
   this.game_time.innerHTML = "Time: "+game_minutes+":"+((game_seconds<10)?"0"+game_seconds:game_seconds)+":"+((game_centa_seconds<10)?"0"+game_centa_seconds:game_centa_seconds);
@@ -681,8 +661,8 @@ Game.paused = true;
   Game.update = function(delta){
     if (!Game.paused){
       player.stop_moving || player.avatar.move(delta);
-      player.avatar.animate(delta);
-      opponent.avatar.animate(delta);
+      player.avatar.animate(delta, true);
+      opponent.avatar.animate(delta, false);
     }
   };
 
@@ -728,25 +708,544 @@ Game.paused = true;
   window.each_frame(Game.run);
 
 
+  //=============================================== SOUND ================================================\\
 
+  var SoundManager = function(){
+    var library = {
+      Eat1: [0,0.0064,0.01,0.2679,0.9037,0.4596,,0.0459,0.4896,-0.0228,-0.1295,-0.8374,0.9421,-0.3912,-0.9189,,-0.1156,-0.4966,0.0947,0.1871,-0.8993,0.116,-0.2408,0.5],
+      Eat2: [2,0.0723,0.0107,0.4702,0.681,0.5816,,,-0.6311,,,0.7088,0.5694,-0.4493,0.0005,-0.47,-0.012,0.0808,0.803,-0.1816,-0.6362,0.007,0.0409,0.5],
+      Eat3: [1,0.009,0.01,0.0139,0.2941,0.4653,,0.4675,0.0138,0.2581,0.5312,-0.1741,0.9533,0.9412,0.1339,0.1833,0.112,0.0909,0.5942,-0.9109,,0.0062,0.0849,0.5],
+      Eat4: [0,0.0745,0.2308,0.0112,0.497,0.5208,,-0.0772,0.8505,0.002,-0.351,0.3726,,,0.126,,-0.0642,0.0739,0.6018,0.013,-0.0855,0.3304,-0.0002,0.5],
+      Reverse1: [0,0.0162,0.7725,0.167,0.3204,0.5936,,-0.1965,,-0.2813,,-0.5995,0.6738,-0.6548,0.0817,0.4256,-0.2282,-0.9325,0.8479,-0.3208,,,-0.0147,0.5],
+      Reverse2: [1,0.1685,0.0157,0.0202,0.3935,0.5402,,-0.236,0.0001,0.0847,,0.8875,,0.8982,-0.5277,0.2602,-0.0798,-0.5753,0.8311,0.016,0.9065,0.0048,,0.5],
+      Reverse3: [1,0.0188,0.0413,0.1843,0.7326,0.6028,,-0.0032,-0.0352,0.1296,-0.0706,-0.9522,,0.4859,0.1722,,0.2087,-0.3006,0.9941,-0.0448,0.9224,0.0168,0.3951,0.5],
+      Reverse4: [2,,0.8122,0.5683,0.8442,0.5,,-0.0329,-0.2216,,-0.8834,-0.1702,0.0213,0.9939,-0.1276,,0.7741,-0.0003,0.7398,,0.4527,0.0007,,0.5],
+      Upgrade1: [2,0.2,0.19,0.4,0.71,0.0002,,0.2907,-0.006,0.0047,0.4222,-0.1013,0.1199,,-0.029,-0.7758,-0.3556,0.0208,0.684,0.7017,0.8898,0.054,0.1546,0.5],
+      You_lose1: [1,0.0002,0.0567,0.6069,0.631,0.5373,,0.1016,-0.7039,0.0422,,0.1501,,0.6826,0.0686,0.4436,0.0054,-0.0157,0.8327,0.0966,-0.0835,,,0.5],
+      You_Win1: [2,0.0009,0.0591,0.1952,0.9899,0.1754,,-0.0005,0.2325,0.1121,-0.9388,0.6123,-0.3225,-0.4815,0.2289,-0.0645,0.5787,-0.0038,0.8952,0.6302,-0.0726,0.0019,-0.0082,0.5]
+    };
+    // var sounds = {};
+    // for (var l in library){
+    //   sounds[l] = new Audio();
+    //   sounds[l].src = jsfxr(library[l]);
+    // }
+    function play(sound){
+      // console.log('sound');
+      if (library[sound]){
+        var a = new Audio();
+        a.src = jsfxr(library[sound]);
+        a.play();
+        // console.log('and sound');
+        // sounds[sound].play();
+      }
+    }
+    this.play = play;
+  };
+
+
+
+  /**
+ * SfxrParams
+ *
+ * Copyright 2010 Thomas Vian
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @author Thomas Vian
+ */
+/** @constructor */
+function SfxrParams() {
+  //--------------------------------------------------------------------------
+  //
+  //  Settings String Methods
+  //
+  //--------------------------------------------------------------------------
+
+  /**
+   * Parses a settings array into the parameters
+   * @param array Array of the settings values, where elements 0 - 23 are
+   *                a: waveType
+   *                b: attackTime
+   *                c: sustainTime
+   *                d: sustainPunch
+   *                e: decayTime
+   *                f: startFrequency
+   *                g: minFrequency
+   *                h: slide
+   *                i: deltaSlide
+   *                j: vibratoDepth
+   *                k: vibratoSpeed
+   *                l: changeAmount
+   *                m: changeSpeed
+   *                n: squareDuty
+   *                o: dutySweep
+   *                p: repeatSpeed
+   *                q: phaserOffset
+   *                r: phaserSweep
+   *                s: lpFilterCutoff
+   *                t: lpFilterCutoffSweep
+   *                u: lpFilterResonance
+   *                v: hpFilterCutoff
+   *                w: hpFilterCutoffSweep
+   *                x: masterVolume
+   * @return If the string successfully parsed
+   */
+  this.setSettings = function(values)
+  {
+    for ( var i = 0; i < 24; i++ )
+    {
+      this[String.fromCharCode( 97 + i )] = values[i] || 0;
+    }
+
+    // I moved this here from the reset(true) function
+    if (this['c'] < .01) {
+      this['c'] = .01;
+    }
+
+    var totalTime = this['b'] + this['c'] + this['e'];
+    if (totalTime < .18) {
+      var multiplier = .18 / totalTime;
+      this['b']  *= multiplier;
+      this['c'] *= multiplier;
+      this['e']   *= multiplier;
+    }
+  }
+}
+
+/**
+ * SfxrSynth
+ *
+ * Copyright 2010 Thomas Vian
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @author Thomas Vian
+ */
+/** @constructor */
+function SfxrSynth() {
+  // All variables are kept alive through function closures
+
+  //--------------------------------------------------------------------------
+  //
+  //  Sound Parameters
+  //
+  //--------------------------------------------------------------------------
+
+  this._params = new SfxrParams();  // Params instance
+
+  //--------------------------------------------------------------------------
+  //
+  //  Synth Variables
+  //
+  //--------------------------------------------------------------------------
+
+  var _envelopeLength0, // Length of the attack stage
+      _envelopeLength1, // Length of the sustain stage
+      _envelopeLength2, // Length of the decay stage
+
+      _period,          // Period of the wave
+      _maxPeriod,       // Maximum period before sound stops (from minFrequency)
+
+      _slide,           // Note slide
+      _deltaSlide,      // Change in slide
+
+      _changeAmount,    // Amount to change the note by
+      _changeTime,      // Counter for the note change
+      _changeLimit,     // Once the time reaches this limit, the note changes
+
+      _squareDuty,      // Offset of center switching point in the square wave
+      _dutySweep;       // Amount to change the duty by
+
+  //--------------------------------------------------------------------------
+  //
+  //  Synth Methods
+  //
+  //--------------------------------------------------------------------------
+
+  /**
+   * Resets the runing variables from the params
+   * Used once at the start (total reset) and for the repeat effect (partial reset)
+   */
+  this.reset = function() {
+    // Shorter reference
+    var p = this._params;
+
+    _period       = 100 / (p['f'] * p['f'] + .001);
+    _maxPeriod    = 100 / (p['g']   * p['g']   + .001);
+
+    _slide        = 1 - p['h'] * p['h'] * p['h'] * .01;
+    _deltaSlide   = -p['i'] * p['i'] * p['i'] * .000001;
+
+    if (!p['a']) {
+      _squareDuty = .5 - p['n'] / 2;
+      _dutySweep  = -p['o'] * .00005;
+    }
+
+    _changeAmount =  1 + p['l'] * p['l'] * (p['l'] > 0 ? -.9 : 10);
+    _changeTime   = 0;
+    _changeLimit  = p['m'] == 1 ? 0 : (1 - p['m']) * (1 - p['m']) * 20000 + 32;
+  }
+
+  // I split the reset() function into two functions for better readability
+  this.totalReset = function() {
+    this.reset();
+
+    // Shorter reference
+    var p = this._params;
+
+    // Calculating the length is all that remained here, everything else moved somewhere
+    _envelopeLength0 = p['b']  * p['b']  * 100000;
+    _envelopeLength1 = p['c'] * p['c'] * 100000;
+    _envelopeLength2 = p['e']   * p['e']   * 100000 + 12;
+    // Full length of the volume envelop (and therefore sound)
+    // Make sure the length can be divided by 3 so we will not need the padding "==" after base64 encode
+    return ((_envelopeLength0 + _envelopeLength1 + _envelopeLength2) / 3 | 0) * 3;
+  }
+
+  /**
+   * Writes the wave to the supplied buffer ByteArray
+   * @param buffer A ByteArray to write the wave to
+   * @return If the wave is finished
+   */
+  this.synthWave = function(buffer, length) {
+    // Shorter reference
+    var p = this._params;
+
+    // If the filters are active
+    var _filters = p['s'] != 1 || p['v'],
+        // Cutoff multiplier which adjusts the amount the wave position can move
+        _hpFilterCutoff = p['v'] * p['v'] * .1,
+        // Speed of the high-pass cutoff multiplier
+        _hpFilterDeltaCutoff = 1 + p['w'] * .0003,
+        // Cutoff multiplier which adjusts the amount the wave position can move
+        _lpFilterCutoff = p['s'] * p['s'] * p['s'] * .1,
+        // Speed of the low-pass cutoff multiplier
+        _lpFilterDeltaCutoff = 1 + p['t'] * .0001,
+        // If the low pass filter is active
+        _lpFilterOn = p['s'] != 1,
+        // masterVolume * masterVolume (for quick calculations)
+        _masterVolume = p['x'] * p['x'],
+        // Minimum frequency before stopping
+        _minFreqency = p['g'],
+        // If the phaser is active
+        _phaser = p['q'] || p['r'],
+        // Change in phase offset
+        _phaserDeltaOffset = p['r'] * p['r'] * p['r'] * .2,
+        // Phase offset for phaser effect
+        _phaserOffset = p['q'] * p['q'] * (p['q'] < 0 ? -1020 : 1020),
+        // Once the time reaches this limit, some of the    iables are reset
+        _repeatLimit = p['p'] ? ((1 - p['p']) * (1 - p['p']) * 20000 | 0) + 32 : 0,
+        // The punch factor (louder at begining of sustain)
+        _sustainPunch = p['d'],
+        // Amount to change the period of the wave by at the peak of the vibrato wave
+        _vibratoAmplitude = p['j'] / 2,
+        // Speed at which the vibrato phase moves
+        _vibratoSpeed = p['k'] * p['k'] * .01,
+        // The type of wave to generate
+        _waveType = p['a'];
+
+    var _envelopeLength      = _envelopeLength0,     // Length of the current envelope stage
+        _envelopeOverLength0 = 1 / _envelopeLength0, // (for quick calculations)
+        _envelopeOverLength1 = 1 / _envelopeLength1, // (for quick calculations)
+        _envelopeOverLength2 = 1 / _envelopeLength2; // (for quick calculations)
+
+    // Damping muliplier which restricts how fast the wave position can move
+    var _lpFilterDamping = 5 / (1 + p['u'] * p['u'] * 20) * (.01 + _lpFilterCutoff);
+    if (_lpFilterDamping > .8) {
+      _lpFilterDamping = .8;
+    }
+    _lpFilterDamping = 1 - _lpFilterDamping;
+
+    var _finished = false,     // If the sound has finished
+        _envelopeStage    = 0, // Current stage of the envelope (attack, sustain, decay, end)
+        _envelopeTime     = 0, // Current time through current enelope stage
+        _envelopeVolume   = 0, // Current volume of the envelope
+        _hpFilterPos      = 0, // Adjusted wave position after high-pass filter
+        _lpFilterDeltaPos = 0, // Change in low-pass wave position, as allowed by the cutoff and damping
+        _lpFilterOldPos,       // Previous low-pass wave position
+        _lpFilterPos      = 0, // Adjusted wave position after low-pass filter
+        _periodTemp,           // Period modified by vibrato
+        _phase            = 0, // Phase through the wave
+        _phaserInt,            // Integer phaser offset, for bit maths
+        _phaserPos        = 0, // Position through the phaser buffer
+        _pos,                  // Phase expresed as a Number from 0-1, used for fast sin approx
+        _repeatTime       = 0, // Counter for the repeats
+        _sample,               // Sub-sample calculated 8 times per actual sample, averaged out to get the super sample
+        _superSample,          // Actual sample writen to the wave
+        _vibratoPhase     = 0; // Phase through the vibrato sine wave
+
+    // Buffer of wave values used to create the out of phase second wave
+    var _phaserBuffer = new Array(1024),
+        // Buffer of random values used to generate noise
+        _noiseBuffer  = new Array(32);
+    for (var i = _phaserBuffer.length; i--; ) {
+      _phaserBuffer[i] = 0;
+    }
+    for (var i = _noiseBuffer.length; i--; ) {
+      _noiseBuffer[i] = Math.random() * 2 - 1;
+    }
+
+    for (var i = 0; i < length; i++) {
+      if (_finished) {
+        return i;
+      }
+
+      // Repeats every _repeatLimit times, partially resetting the sound parameters
+      if (_repeatLimit) {
+        if (++_repeatTime >= _repeatLimit) {
+          _repeatTime = 0;
+          this.reset();
+        }
+      }
+
+      // If _changeLimit is reached, shifts the pitch
+      if (_changeLimit) {
+        if (++_changeTime >= _changeLimit) {
+          _changeLimit = 0;
+          _period *= _changeAmount;
+        }
+      }
+
+      // Acccelerate and apply slide
+      _slide += _deltaSlide;
+      _period *= _slide;
+
+      // Checks for frequency getting too low, and stops the sound if a minFrequency was set
+      if (_period > _maxPeriod) {
+        _period = _maxPeriod;
+        if (_minFreqency > 0) {
+          _finished = true;
+        }
+      }
+
+      _periodTemp = _period;
+
+      // Applies the vibrato effect
+      if (_vibratoAmplitude > 0) {
+        _vibratoPhase += _vibratoSpeed;
+        _periodTemp *= 1 + Math.sin(_vibratoPhase) * _vibratoAmplitude;
+      }
+
+      _periodTemp |= 0;
+      if (_periodTemp < 8) {
+        _periodTemp = 8;
+      }
+
+      // Sweeps the square duty
+      if (!_waveType) {
+        _squareDuty += _dutySweep;
+        if (_squareDuty < 0) {
+          _squareDuty = 0;
+        } else if (_squareDuty > .5) {
+          _squareDuty = .5;
+        }
+      }
+
+      // Moves through the different stages of the volume envelope
+      if (++_envelopeTime > _envelopeLength) {
+        _envelopeTime = 0;
+
+        switch (++_envelopeStage)  {
+          case 1:
+            _envelopeLength = _envelopeLength1;
+            break;
+          case 2:
+            _envelopeLength = _envelopeLength2;
+        }
+      }
+
+      // Sets the volume based on the position in the envelope
+      switch (_envelopeStage) {
+        case 0:
+          _envelopeVolume = _envelopeTime * _envelopeOverLength0;
+          break;
+        case 1:
+          _envelopeVolume = 1 + (1 - _envelopeTime * _envelopeOverLength1) * 2 * _sustainPunch;
+          break;
+        case 2:
+          _envelopeVolume = 1 - _envelopeTime * _envelopeOverLength2;
+          break;
+        case 3:
+          _envelopeVolume = 0;
+          _finished = true;
+      }
+
+      // Moves the phaser offset
+      if (_phaser) {
+        _phaserOffset += _phaserDeltaOffset;
+        _phaserInt = _phaserOffset | 0;
+        if (_phaserInt < 0) {
+          _phaserInt = -_phaserInt;
+        } else if (_phaserInt > 1023) {
+          _phaserInt = 1023;
+        }
+      }
+
+      // Moves the high-pass filter cutoff
+      if (_filters && _hpFilterDeltaCutoff) {
+        _hpFilterCutoff *= _hpFilterDeltaCutoff;
+        if (_hpFilterCutoff < .00001) {
+          _hpFilterCutoff = .00001;
+        } else if (_hpFilterCutoff > .1) {
+          _hpFilterCutoff = .1;
+        }
+      }
+
+      _superSample = 0;
+      for (var j = 8; j--; ) {
+        // Cycles through the period
+        _phase++;
+        if (_phase >= _periodTemp) {
+          _phase %= _periodTemp;
+
+          // Generates new random noise for this period
+          if (_waveType == 3) {
+            for (var n = _noiseBuffer.length; n--; ) {
+              _noiseBuffer[n] = Math.random() * 2 - 1;
+            }
+          }
+        }
+
+        // Gets the sample from the oscillator
+        switch (_waveType) {
+          case 0: // Square wave
+            _sample = ((_phase / _periodTemp) < _squareDuty) ? .5 : -.5;
+            break;
+          case 1: // Saw wave
+            _sample = 1 - _phase / _periodTemp * 2;
+            break;
+          case 2: // Sine wave (fast and accurate approx)
+            _pos = _phase / _periodTemp;
+            _pos = (_pos > .5 ? _pos - 1 : _pos) * 6.28318531;
+            _sample = 1.27323954 * _pos + .405284735 * _pos * _pos * (_pos < 0 ? 1 : -1);
+            _sample = .225 * ((_sample < 0 ? -1 : 1) * _sample * _sample  - _sample) + _sample;
+            break;
+          case 3: // Noise
+            _sample = _noiseBuffer[Math.abs(_phase * 32 / _periodTemp | 0)];
+        }
+
+        // Applies the low and high pass filters
+        if (_filters) {
+          _lpFilterOldPos = _lpFilterPos;
+          _lpFilterCutoff *= _lpFilterDeltaCutoff;
+          if (_lpFilterCutoff < 0) {
+            _lpFilterCutoff = 0;
+          } else if (_lpFilterCutoff > .1) {
+            _lpFilterCutoff = .1;
+          }
+
+          if (_lpFilterOn) {
+            _lpFilterDeltaPos += (_sample - _lpFilterPos) * _lpFilterCutoff;
+            _lpFilterDeltaPos *= _lpFilterDamping;
+          } else {
+            _lpFilterPos = _sample;
+            _lpFilterDeltaPos = 0;
+          }
+
+          _lpFilterPos += _lpFilterDeltaPos;
+
+          _hpFilterPos += _lpFilterPos - _lpFilterOldPos;
+          _hpFilterPos *= 1 - _hpFilterCutoff;
+          _sample = _hpFilterPos;
+        }
+
+        // Applies the phaser effect
+        if (_phaser) {
+          _phaserBuffer[_phaserPos % 1024] = _sample;
+          _sample += _phaserBuffer[(_phaserPos - _phaserInt + 1024) % 1024];
+          _phaserPos++;
+        }
+
+        _superSample += _sample;
+      }
+
+      // Averages out the super samples and applies volumes
+      _superSample *= .125 * _envelopeVolume * _masterVolume;
+
+      // Clipping if too loud
+      buffer[i] = _superSample >= 1 ? 32767 : _superSample <= -1 ? -32768 : _superSample * 32767 | 0;
+    }
+
+    return length;
+  }
+}
+
+// Adapted from http://codebase.es/riffwave/
+var synth = new SfxrSynth();
+// Export for the Closure Compiler
+window['jsfxr'] = function(settings) {
+  // Initialize SfxrParams
+  synth._params.setSettings(settings);
+  // Synthesize Wave
+  var envelopeFullLength = synth.totalReset();
+  var data = new Uint8Array(((envelopeFullLength + 1) / 2 | 0) * 4 + 44);
+  var used = synth.synthWave(new Uint16Array(data.buffer, 44), envelopeFullLength) * 2;
+  var dv = new Uint32Array(data.buffer, 0, 44);
+  // Initialize header
+  dv[0] = 0x46464952; // "RIFF"
+  dv[1] = used + 36;  // put total size here
+  dv[2] = 0x45564157; // "WAVE"
+  dv[3] = 0x20746D66; // "fmt "
+  dv[4] = 0x00000010; // size of the following
+  dv[5] = 0x00010001; // Mono: 1 channel, PCM format
+  dv[6] = 0x0000AC44; // 44,100 samples per second
+  dv[7] = 0x00015888; // byte rate: two bytes per sample
+  dv[8] = 0x00100002; // 16 bits per sample, aligned on every two bytes
+  dv[9] = 0x61746164; // "data"
+  dv[10] = used;      // put number of samples here
+
+  // Base64 encoding written by me, @maettig
+  used += 44;
+  var i = 0,
+      base64Characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+      output = 'data:audio/wav;base64,';
+  for (; i < used; i += 3)
+  {
+    var a = data[i] << 16 | data[i + 1] << 8 | data[i + 2];
+    output += base64Characters[a >> 18] + base64Characters[a >> 12 & 63] + base64Characters[a >> 6 & 63] + base64Characters[a & 63];
+  }
+  return output;
+}
 
 
 
 
 //TODO:
 
- // put mouths on nom and mon icons
+  // SOUND, SOUND, SOUND!!!
 
- // fix tab out bug
- // get eyes to follow mouse
+  // fix tab out bug
 
- // disconnect cases:
-  // while waiting for someone to join
-  // while browsing
-  // mid game
-  // end game
+  // disconnect cases:
+    // while waiting for someone to join
+    // while browsing
+    // mid game
+    // end game
 
   // foreseeable tweaks:
     // you win/lose
+
+  // stretch goals:
+    // get eyes to follow mouse
 
 
