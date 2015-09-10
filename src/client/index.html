@@ -49,31 +49,33 @@
     </div>
 
     <div id="HUD">
-      <div id="game_time">Time: 2:00:00</div>
+      <center><div style="margin: 10px 0 -40px; 0" id="game_time" class="frame">2:00:00</div></center>
       <div id="score" class="wrap" style="float: left">
-        <p id="player_lv">lv 3</p>
-        <img id="player_nom" class="small" />
+        <p class="frame" id="player_lv">lv 3</p>
+        <img id="player_nom" style="margin-top: 10px;" class="small" />
         <img id="player_mon" class="small" />
-        <p id="player_score">Score: 75</p>
+        <p id="player_score" class="yellow">Score: 75</p>
       </div>
       <div id="opponent" class="wrap" style="float: right">
-        <p id="opponent_lv">lv 2</p>
+        <p class="frame" id="opponent_lv">lv 2</p>
         <img id="opponent_nom" class="small" />
         <img id="opponent_mon" class="small" />
-        <p id="opponent_score">Opponent: 67</p>
+        <p id="opponent_score" class="darkPink">Opponent: 67</p>
       </div>
       <div class="clear">
         <div class="upgrade">
-      <div id="upgrade_bar_back" class="yellow">
-        UPGRADE
-        <p id="upgrade_text">15/40</p>
-        <div id="upgrade_bar_fill" class="blue bar"></div>
+      <div id="upgrade_bar_back" class="yellow upgradeShell">
+        <span class="barText yellow">UPGRADE &nbsp;
+        <p style="float: right;" id="upgrade_text">15/40</p></span>
+        <div id="upgrade_bar_fill" class="blue upgradeValue"></div>
       </div>
     </div>
       <div class="reverse">
-      <div id="reverse_bar_back" class="darkPink">
-        REVERSE
-        <div id="reverse_bar_fill" class="red bar"></div>
+      <div id="reverse_bar_back" class="darkPink reverseShell">
+       <span class="barText darkPink"> REVERSE &nbsp;
+          <p style="float: right;" id="reverse_text">15/40</p></span>
+        <span>
+        <div id="reverse_bar_fill" class="red reverseValue"></div>
       </div>
     </div>
     </div>
